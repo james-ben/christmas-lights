@@ -1,11 +1,19 @@
 import board
 import neopixel
+from random import randint
 
 class strand(object):
     def __init__(self):
         self.num_pixels = 100
         self.pin_num = board.D18
         self.pixels = neopixel.NeoPixel(self.pin_num, self.num_pixels, auto_write=False, pixel_order=neopixel.RGB)
+
+    def __del__(self):
+        self.pixels.fill((0, 0, 0))
+        self.pixels.show()
+        s = super()
+        if hasattr(s, "__del__"):
+            s.__del__(self)
 
     def setAllColor(self, color):
         self.pixels.fill(color)
@@ -16,9 +24,5 @@ class strand(object):
     def showPixels(self):
         self.pixels.show()
 
-    def __del__(self):
-        self.pixels.fill((0, 0, 0))
-        self.pixels.show()
-        s = super()
-        if hasattr(s, "__del__"):
-            s.__del__(self)
+    def randIdx(self):
+        return randint(0, self.num_pixels - 1)
