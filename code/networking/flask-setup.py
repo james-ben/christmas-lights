@@ -34,7 +34,6 @@ minorChoices = {
 app = Flask(__name__)
 ts = None
 
-
 class TreeServer():
 	def __init__(self):
 		self.processHandle = None
