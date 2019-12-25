@@ -1,10 +1,226 @@
+<style>
+    :root {
+        /* --var-color-text-default: #3C3A51; */
+        --var-color-text-default: #333;
+        --var-color-text-dark: black;
+        --var-color-text-light: #f9f9f9;
+        --var-lights-width: 10px;
+/** bright **/
+        --var-color-primary: #288C84;
+        --var-color-primary-bright: #37C394;
+        --var-color-secondary: #b6096b;
+        --var-color-secondary-bright: #FDFFF6;
+        --var-color-accent: #FF0548; 
+/** dull **/
+       /**  --var-color-primary: #1E402F;
+        --var-color-primary-bright: #4F7D58;
+        --var-color-secondary: #64777D;
+        --var-color-secondary-bright: #D7D8DA;
+        --var-color-accent: #BB2528; */
+    }
+    body {
+        display: flex;
+        flex-flow: row;
+        justify-content: left;
+        align-items: start;
+        background: var(--var-color-text-default);
+    }
+    .panel {
+        margin-top: 40px;
+        background-color: var(--var-color-text-light);;
+        padding: 10px;
+        padding-bottom: 100%;
+    }
+    h1 {
+        color: var(--var-color-text-default);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    button {
+        padding: 10px;
+        border-radius: 2px;
+        box-shadow: none;
+        font-size: .8rem;
+        border: none;
+        margin: 10px;
+        cursor: pointer;
+        background: var(--var-color-secondary);
+        color: var(--var-color-text-light);
+        height: 100px;
+        width: 100px;
+        opacity: .8;
+    }
+    button:nth-child(2n+1) {
+        background: var(--var-color-primary);
+    }
+    button:nth-child(4n+2){
+        background: var(--var-color-accent);
+    }
+    button:hover {
+        opacity: 1;
+    }
+    .presets {
+        display: flex;
+        flex-flow: row wrap;
+    }
+    .procedures {
+        display: flex;
+        flex-flow: column nowrap;
+    }
+    .christmas-lights {
+        overflow: hidden;
+        position: absolute;
+        z-index: 1;
+        margin: -13px 0 0 0;
+        padding: 0;
+        display: flex;
+        flex-flow: row;
+        justify-content: space-between;
+        width: 100%;
+        height: 10%;
+    }
+    .christmas-lights li {
+        position: relative;
+        display: inline-block;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        margin-top: calc(var(--var-lights-width)*.9);
+        width: var(--var-lights-width);
+        height: calc(var(--var-lights-width)*2);
+        background: var(--var-color-accent);
+        box-shadow: var(--var-color-accent) 0px 0px 12px 5px;
+        border-radius: 50%;
+        animation-fill-mode: both; 
+        animation-iteration-count: infinite;
+        animation-duration: 2s;
+        animation-name: flash;
+    }
+    .christmas-lights li:before {
+        content: '';
+        display: block;
+        margin-top: -7px;
+        width: var(--var-lights-width);
+        height: var(--var-lights-width);
+        background: #2a2a2a;
+        border-radius: 3px;
+    }
+    .christmas-lights li:after {
+        content: '';
+        display: block;
+        margin: 0;
+        margin-top: -16px;
+        margin-left: 7px;
+        width: calc(var(--var-lights-width)*5);
+        height: calc(var(--var-lights-width));
+        border-radius: 50%;
+        border-bottom: 3px solid #2a2a2a;
+    }
+    .christmas-lights li:nth-child(2n+1) {
+        background: var(--var-color-primary-bright);
+        box-shadow: var(--var-color-primary-bright) 0px 0px 12px 5px;
+        animation-duration: 1.8s;
+
+    }
+    .christmas-lights li:nth-child(4n+2) {
+        background: var(--var-color-secondary-bright);
+        box-shadow: var(--var-color-secondary-bright) 0px 0px 12px 5px;
+        animation-duration: 1.1s;
+    }
+    .christmas-lights li:nth-child(5n+1) {
+        background: var(--var-color-secondary);
+        box-shadow: var(--var-color-secondary) 0px 0px 12px 5px;
+    }
+    .christmas-lights li:nth-child(3n+1) {
+       animation-duration: 1.4s;
+    } 
+    .christmas-lights li:nth-child(5n) {
+       animation-duration: 1.6s;
+    } 
+    @keyframes flash { 
+        0%, 100% { box-shadow: inherit 0px 0px 12px 5px; }
+        50% { box-shadow: transparent 0px 0px 12px 5px; }
+    }
+</style>
+
 <html>
 <head>
     <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-<h1>Hello there!</h1>
-<h2>General Kenobi</h2>
-<p>The time is: {{ time }}</p>
+<ul class="christmas-lights">
+    <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
+</ul>
+<div class="panel left">
+    <h1>Epic Christmas Lights</h1>
+    <div class="procedures">
+        <h2>Presets</h2>
+        <div class="presets">
+            <button onclick="runProcedure('twinkle-color')">Twinkle Color</button>
+            <button onclick="runProcedure('twinkle-white')">Twinkle White</button>
+            <button onclick="runProcedure('stripes-up')">Stripe Up</button>
+            <button onclick="runProcedure('stripes-up-down')">Stripe Up/Down</button>
+            <button onclick="runProcedure('strobe')">Strobe</button>
+        </div>
+        <h2>Custom</h2>
+        <div>
+            <form>
+                <h3>Colors</h3>
+                <div class="colorSet">
+                    <input id="color_set" type="checkbox" value="red" />
+                    <label for="color_set">Red</label>
+                    <input id="color_set" type="checkbox" value="blue" />
+                    <label for="color_set">Blue</label>
+                </div>
+                <div>
+                    <input id="color_ordered" type="checkbox" value=""/>
+                    <label for="color_ordered">Random Colors</label>
+                </div>
+                <h3>Brightness</h3>
+                <div>
+                    <input id="brightness_min" type="text" placeholder="0" maxlength="2"/>
+                    <label for="brightness_min">Brightness Min Value</label>
+                    <input id="brightness_max" type="text" placeholder="1" maxlength="2"/>
+                    <label for="brightness_max">Brightness Max Value</label>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div></div>
 </body>
 </html>
+
+<script>
+
+// const server = 'http://192.168.0.102:5000';
+const server = 'http://192.168.1.26:5000';
+
+async function runProcedure(action) {
+    let response = {};
+    try {
+    switch(action) {
+        case 'twinkle-color': 
+            response = await fetch(`${server}/run/twinkle/color`);
+            break;
+        case 'twinkle-white':
+            response = await fetch(`${server}/run/twinkle/white`);
+            break;
+        case 'stripes-up':
+            response = await fetch(`${server}/run/stripes/up_ordered`);
+            break;
+        case 'stripes-up-down':
+            response = await fetch(`${server}/run/stripes/upDown_ordered`);
+            break;
+        case 'strobe':
+            response = await fetch(`${server}/run/strobe/upDown_ordered`);
+            break;
+        default: 
+            break;
+    }
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+
+</script>
