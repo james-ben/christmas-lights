@@ -83,7 +83,7 @@ class TreeServer(object):
 				elif minor == minorChoices[major][1]:
 					# upDown_ordered
 					self.processHandle = threading.Thread(target=stripes.upDownLoopOrdered, args=(
-						self.strand, lambda: self.stopFlag))
+							self.strand, lambda: self.stopFlag))
 
 			elif major == majorChoices[2]:
 				# strobe
