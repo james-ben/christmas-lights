@@ -20,8 +20,10 @@ def upDownLoopOrdered(strand, stopFlag):
 			if upFlag:
 				for i in range(strand.num_pixels):
 					strand.setPixelColor(i, c)
+					strand.showPixels()
 				upFlag = False
 			else:
 				for i in range(strand.num_pixels-1, -1, -1):
 					strand.setPixelColor(i, c)
+					strand.showPixels()
 				upFlag = True

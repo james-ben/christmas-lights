@@ -5,7 +5,8 @@ from datetime import datetime
 from flask import Flask, render_template
 
 sys.path.append(os.path.abspath("../"))
-from light_utils import grid
+# from light_utils import grid
+from light_utils import fake_grid as grid
 from procedures import twinkler, stripes, strobe
 
 
@@ -35,7 +36,7 @@ app = Flask(__name__)
 ts = None
 
 
-class TreeServer():
+class TreeServer(object):
 	def __init__(self):
 		self.processHandle = None
 		self.grid = grid.Grid()
@@ -82,7 +83,7 @@ class TreeServer():
 				elif minor == minorChoices[major][1]:
 					# upDown_ordered
 					self.processHandle = threading.Thread(target=stripes.upDownLoopOrdered, args=(
-						self.strand, lambda: self.stopFlag))
+							self.strand, lambda: self.stopFlag))
 
 			elif major == majorChoices[2]:
 				# strobe
@@ -128,4 +129,4 @@ def runProcedure(major, minor):
 
 if __name__ == '__main__':
 	ts = TreeServer()
-	app.run(debug=True, host='0.0.0.0')
+	app.run(debug=False, host='0.0.0.0')
