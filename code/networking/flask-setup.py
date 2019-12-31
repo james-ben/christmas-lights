@@ -6,10 +6,17 @@ from datetime import datetime
 from flask import Flask, request, render_template
 
 sys.path.append(os.path.abspath("../"))
-from light_utils import grid
-# from light_utils import fake_grid as grid
 from procedures import twinkler, stripes, strobe
 from networking import json_api
+
+# import the right kind based on the system
+if "linux" in sys.platform:
+	if os.getlogin() == "pi":
+		from light_utils import grid
+	else:
+		from light_utils import fake_grid as grid
+else:
+	from light_utils import fake_grid as grid
 
 
 # perhaps this will be changed in the future
@@ -98,12 +105,12 @@ def runProcedure():
 		if request.method == 'POST':
 			# https://stackoverflow.com/a/23898949
 			data = str(request.get_data(), encoding='utf-8')
-			print(data)
 			# format as json
 			info = json_api.sanitizePacket(data)
 
 			# check for errors
 			if isinstance(info, str):
+				print(data)
 				print(info)
 				return info
 			elif isinstance(info, dict):
@@ -111,22 +118,18 @@ def runProcedure():
 				print(info)
 				return "accepted"
 			else:
+				print(data)
 				return "Error, invalid request"
 	except Exception:
 		pass
 	finally:
 		return "Failure!"
 
-# @app.route('/run/<major>/<minor>')
-# def runProcedure(major, minor):
-# 	if ts.runProcedure(major, minor):
-# 		templateData = {
-# 			'major' : major,
-# 			'minor' : minor
-# 		}
-# 		return render_template('procedure.html', **templateData)
-
 
 if __name__ == '__main__':
-	ts = TreeServer()
-	app.run(debug=False, host='0.0.0.0')
+	try:
+		ts = TreeServer()
+		app.run(debug=False, host='0.0.0.0')
+	except KeyboardInterrupt as ki:
+		del ts
+		print("Exiting...")

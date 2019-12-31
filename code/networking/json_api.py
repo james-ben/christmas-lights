@@ -47,6 +47,12 @@ def makeListOfTwo(val, default):
 		val = [val, val]
 	elif isinstance(val, int):
 		val = [val, val]
+	elif isinstance(val, str):
+		try:
+			val = float(val)
+			val = [val, val]
+		except ValueError:
+			val = [default, default]
 	else:
 		val = [default, default]
 	return val

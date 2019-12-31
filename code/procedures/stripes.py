@@ -46,32 +46,31 @@ class StripeLights:
 
 	def run(self, strand, params, stopFlag):
 		# initialization
-		print("Initializing stripey lights...")
 		self.strand = strand
 		self.parseParams(params)
 
 		# run
 		if self.run_time is not None:
 			while not stopFlag():
-				self.iteration(self.nextColor())
+				self.iteration()
 		else:
 			for _ in range(self.num_runs):
-				self.iteration(self.nextColor())
+				self.iteration()
 				if stopFlag():
 					break
 
-	def iteration(self, nextColor):
+	def iteration(self):
 		# direction
 		if self.direction == "forward":
 			# up
-			self.stripeUp(nextColor)
+			self.stripeUp(self.nextColor())
 		elif self.direction == "backward":
 			# down
-			self.stripeDown(nextColor)
+			self.stripeDown(self.nextColor())
 		elif self.direction == "bounce":
 			# up_down
-			self.stripeUp(nextColor)
-			self.stripeDown(nextColor)
+			self.stripeUp(self.nextColor())
+			self.stripeDown(self.nextColor())
 
 	def stripeUp(self, color):
 		for i in range(self.strand.num_pixels):
