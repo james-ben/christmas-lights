@@ -19,19 +19,25 @@
         --var-color-accent: #BB2528; */
     }
     body {
-        display: flex;
-        flex-flow: row;
-        justify-content: left;
-        align-items: start;
         background: var(--var-color-text-default);
+    }
+    .content {
+        display: flex;
+        flex-flow: row nowrap;
+        width: 100%;
+        justify-content: space-around;
     }
     .panel {
         margin-top: 40px;
         background-color: var(--var-color-text-light);;
         padding: 10px;
-        padding-bottom: 100%;
+        margin: 10px;
+        border-radius: 2px;
     }
-    h1 {
+    .panel:nth-of-type(2) {
+        flex-grow: 3;
+    }
+    h1, h2, h3, h4, h5, h6, p, label, div, span, a, button {
         color: var(--var-color-text-default);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
@@ -43,29 +49,78 @@
         border: none;
         margin: 10px;
         cursor: pointer;
-        background: var(--var-color-secondary);
-        color: var(--var-color-text-light);
-        height: 100px;
-        width: 100px;
-        opacity: .8;
-    }
-    button:nth-child(2n+1) {
         background: var(--var-color-primary);
-    }
-    button:nth-child(4n+2){
-        background: var(--var-color-accent);
+        color: var(--var-color-text-light);
+        height: 50px;
+        width: 100px;
+        opacity: .4;
+        cursor: pointer;
     }
     button:hover {
-        opacity: 1;
+        opacity: .9;
     }
-    .presets {
+    button[disabled]:hover {
+        opacity: .4;
+        cursor: auto;
+    }
+    .presets .button-container button{
+        height: 100px;
+    }
+    .presets .button-container {
         display: flex;
         flex-flow: row wrap;
+        max-width: 250px;
     }
-    .procedures {
+    form div {
+        padding: 5px;
+        margin: 5px 10px;
+    }
+    form input {
+        max-width: 30px;
+    }
+    input#direction {
+        max-width: 100px;
+    }
+    .procedure-names button {
+        background: var(--var-color-accent);
+    }
+    .procedure-names button.selected {
+        opacity: 1;
+    }
+    .colorSet {
         display: flex;
-        flex-flow: column nowrap;
+        flex-flow: row wrap;
+        padding: 0;
+        margin: 0;
     }
+    .colorSet input {
+        display: none;
+    }
+    .colorSet label {
+        content: "";
+        display: flex;
+        flex-flow: row;
+        justify-content: center;
+        align-items: center;
+        width: 100px;
+        height: 50px;
+        cursor: pointer;
+        opacity: .4;
+        color: var(--var-color-text-light);
+        margin: 2px 10px;
+        border-radius: 2px;
+    }
+    .colorSet label:hover {
+        opacity: .9;
+    }
+    .colorSet input:checked + label {
+        opacity: 1;
+    }
+
+
+    /**
+     * CHRISTMAS LIGHTS
+     */
     .christmas-lights {
         overflow: hidden;
         position: absolute;
@@ -150,77 +205,80 @@
 <ul class="christmas-lights">
     <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
 </ul>
-<div class="panel left">
-    <h1>Epic Christmas Lights</h1>
-    <div class="procedures">
-        <h2>Presets</h2>
+<h1>Epic Christmas Lights</h1>
+<div class="content">
+<div class="panel">
         <div class="presets">
-            <button onclick="runProcedure('twinkle-color')">Twinkle Color</button>
-            <button onclick="runProcedure('twinkle-white')">Twinkle White</button>
-            <button onclick="runProcedure('stripes-up')">Stripe Up</button>
-            <button onclick="runProcedure('stripes-up-down')">Stripe Up/Down</button>
-            <button onclick="runProcedure('strobe')">Strobe</button>
-        </div>
-        <h2>Custom</h2>
-        <div>
-            <form>
-                <h3>Colors</h3>
-                <div class="colorSet">
-                    <input id="color_set" type="checkbox" value="red" />
-                    <label for="color_set">Red</label>
-                    <input id="color_set" type="checkbox" value="blue" />
-                    <label for="color_set">Blue</label>
-                </div>
-                <div>
-                    <input id="color_ordered" type="checkbox" value=""/>
-                    <label for="color_ordered">Random Colors</label>
-                </div>
-                <h3>Brightness</h3>
-                <div>
-                    <input id="brightness_min" type="text" placeholder="0" maxlength="2"/>
-                    <label for="brightness_min">Brightness Min Value</label>
-                    <input id="brightness_max" type="text" placeholder="1" maxlength="2"/>
-                    <label for="brightness_max">Brightness Max Value</label>
-                </div>
-            </form>
-        </div>
+            <h2>Presets</h2>
+            <div class="button-container">
+                <button type="button" onclick="runProcedure('twinkle-color')">Twinkle Color</button>
+                <button type="button" onclick="runProcedure('twinkle-white')">Twinkle White</button>
+                <button type="button" onclick="runProcedure('stripes-up')">Stripe Up</button>
+                <button type="button" onclick="runProcedure('stripes-up-down')">Stripe Up/Down</button>
+                <button type="button" onclick="runProcedure('strobe')">Strobe</button>
+            </div>
     </div>
 </div>
-<div></div>
+<div class="panel">
+    <h2>Custom</h2>
+    <form id="custom_procedure">
+        <div id="name" class="procedure-names button-container">
+            <button type="button" onclick="setProcedureName(this)" value="twinkle">Twinkle Color</button>
+            <button type="button" onclick="setProcedureName(this)" value="stripes">Stripes</button>
+            <button type="button" onclick="setProcedureName(this)" value="strobe" disabled>Strobe</button>
+        </div>
+        <div>
+            <h3>Direction</h3>
+            <input id="direction" type="text" placeholder="forward, backward, bounce" value="forward"/>
+            <label for="direction">Direction</label></br>
+        </div>
+        <div>
+            <h3>Colors</h3>
+            <div class="colorSet">
+                <input id="red" type="checkbox" value="red"/>
+                <label style="background:rgb(190, 28, 28)" for="red">Red</label></br>
+                
+                <input id="green" type="checkbox" value="green" />
+                <label style="background:rgb(30, 126, 30)" for="green">Green</label></br>
+                
+                <input id="yellow" type="checkbox" value="yellow" />
+                <label style="background:rgb(218, 179, 10)" for="yellow">Yellow</label></br>
+                
+                <input id="blue" type="checkbox" value="blue" />
+                <label style="background:rgb(34, 34, 163)" for="blue">Blue</label></br>
+                
+                <input id="white" type="checkbox" value="white" />
+                <label style="background:#afafaf" for="white">White</label></br>
+            </div>
+        </div>
+       
+        <div>
+            <input id="colorOrdered" type="checkbox" value=""/>
+            <label for="colorOrdered">Random Colors</label></br>
+        </span>
+        <div>
+            <h3>Brightness</h3>
+            <input id="brightnessMin" type="text" placeholder="0" maxlength="2" value="0"/>
+            <label for="brightnessMin">Brightness Min Value</label></br>
+            <input id="brightnessMax" type="text" placeholder="1" maxlength="2" value=".5"/>
+            <label for="brightnessMax">Brightness Max Value</label></br>
+        </div>
+        <div>
+            <h3>Timing</h3>
+            <input id="runTime" type="text" placeholder="0" maxlength="2" value="2"/>
+            <label for="runTime">Run Time</label></br>
+            <input id="blinkTimeMin" type="text" placeholder="0" maxlength="5" value="1"/>
+            <label for="blinkTimeMin">Blink Time Min</label></br>
+            <input id="blinkTimeMax" type="text" placeholder="0" maxlength="5" value="3"/>
+            <label for="blinkTimeMax">Blink Time Max</label></br>
+            <input id="numRuns" type="text" placeholder="0" value="5"/>
+            <label for="numRuns">Number of Runs</label></br>
+        </div>
+        <button onclick="submitForm()">Submit</button>
+    </form>
+</div>
+</div>
 </body>
 </html>
 
-<script>
-
-// const server = 'http://192.168.0.102:5000';
-const server = 'http://192.168.1.26:5000';
-
-async function runProcedure(action) {
-    let response = {};
-    try {
-    switch(action) {
-        case 'twinkle-color': 
-            response = await fetch(`${server}/run/twinkle/color`);
-            break;
-        case 'twinkle-white':
-            response = await fetch(`${server}/run/twinkle/white`);
-            break;
-        case 'stripes-up':
-            response = await fetch(`${server}/run/stripes/up_ordered`);
-            break;
-        case 'stripes-up-down':
-            response = await fetch(`${server}/run/stripes/upDown_ordered`);
-            break;
-        case 'strobe':
-            response = await fetch(`${server}/run/strobe/upDown_ordered`);
-            break;
-        default: 
-            break;
-    }
-    }
-    catch (error) {
-        console.error(error);
-    }
-}
-
-</script>
+<script type="text/javascript" src="../scripts/main.js"></script>
