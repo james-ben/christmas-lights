@@ -6,6 +6,15 @@ from light_utils import colors
 colorList = [c.value for c in colors.choices]
 
 
+class StrobeLights:
+	def __init__(self):
+		pass
+
+
+	def run(self, strand, params, stopFlag):
+		pass
+
+
 def rowColorTest(g):
 	"""Tests that the rows are set up correctly."""
 	g.setRow(0, colors.Color.Green.value)
