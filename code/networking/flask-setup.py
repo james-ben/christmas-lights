@@ -1,34 +1,24 @@
 import os
 import sys
+import time
 import threading
+from itertools import cycle
 from datetime import datetime
-from flask import Flask, render_template
+from flask import Flask, request, render_template
 
 sys.path.append(os.path.abspath("../"))
-# from light_utils import grid
-from light_utils import fake_grid as grid
 from procedures import twinkler, stripes, strobe
+from networking import json_api
+from light_utils import colors
 
-
-majorChoices = [
-	"twinkle",
-	"stripes",
-	"strobe"
-]
-
-minorChoices = {
-	"twinkle" : [
-		"color",
-		"white"
-	],
-	"stripes" : [
-		"up_ordered",
-		"upDown_ordered",
-	],
-	"strobe" : [
-		"upDown_ordered"
-	]
-}
+# import the right kind based on the system
+if "linux" in sys.platform:
+	if os.getlogin() == "pi":
+		from light_utils import grid
+	else:
+		from light_utils import fake_grid as grid
+else:
+	from light_utils import fake_grid as grid
 
 
 # perhaps this will be changed in the future
@@ -43,63 +33,110 @@ class TreeServer(object):
 		# alias
 		self.strand = self.grid
 
-		self.twGroup = 5
+		# interrupt flags
 		self.stopFlag = False
+		self.timerInterrupt = False
+		self.timerHandle = None
 
-	def validateProcedure(self, major, minor):
-		# validate major
-		if major in majorChoices:
-			if minor in minorChoices[major]:
-				return True
-		return False
+		# procedure objects
+		self.twinkler = twinkler.TwinkleLights()
+		self.striper = stripes.StripeLights()
+		self.strobe = strobe.StrobeLights()
 
-	# TODO: add way to pass optional params
-	def runProcedure(self, major, minor):
-		valid = self.validateProcedure(major, minor)
-		if valid:
-			# cancel old thread
+		self.functionMap = {
+			"twinkle": self.twinkler.run,
+			"stripes": self.striper.run,
+			"strobe": self.strobe.run,
+		}
+
+		# init the state
+		self.procList = [{"name" : "off"}]
+		self.procCycle = cycle(self.procList)
+
+		# background thread that runs all the things
+		self.backLock = False
+		self.completed = False
+		self.backgroundThread = threading.Thread(target=self.runBackground)
+		self.backgroundThread.start()
+
+	def __del__(self):
+		"""Stop all threads and destruct the strand/grid."""
+		self.backLock = True
+		self.completed = True
+		self.backgroundThread.join()
+		del self.grid
+
+	def runBackground(self):
+		while not self.completed:
+
+			# spin lock to avoid race conditions
+			while self.backLock:
+				pass
+
+			# get the next procedure to run
+			nextParam = next(self.procCycle)
+
+			# wait for old job to finish
+			if self.timerHandle is not None:
+				self.timerInterrupt = True
+				# this could take a while TODO: make better
+				self.timerHandle.join()
+				self.timerHandle = None
 			if self.processHandle is not None:
 				self.stopFlag = True
 				self.processHandle.join()
+				self.processHandle = None
 
-			# new thread, target is the major/minor
-			if major == majorChoices[0]:
-				# twinkle
-				if minor == minorChoices[major][0]:
-					# color
-					self.processHandle = threading.Thread(target=twinkler.colorLoop, args=(
-							self.strand, self.twGroup, lambda: self.stopFlag))
-				if minor == minorChoices[major][1]:
-					# white
-					self.processHandle = threading.Thread(target=twinkler.whiteLoop, args=(
-							self.strand, self.twGroup, lambda: self.stopFlag))
+			# special name to turn it all off
+			if nextParam["name"].lower() == "off":
+				self.grid.setAllColor(colors.Off)
+				# short circuit
+				continue
 
-			elif major == majorChoices[1]:
-				# stripes
-				if minor == minorChoices[major][0]:
-					# up_ordered
-					self.processHandle = threading.Thread(target=stripes.upLoopOrdered, args=(
-							self.strand, lambda: self.stopFlag))
-				elif minor == minorChoices[major][1]:
-					# upDown_ordered
-					self.processHandle = threading.Thread(target=stripes.upDownLoopOrdered, args=(
-							self.strand, lambda: self.stopFlag))
+			# print("Running procedure: {}".format(nextParam["name"]))
 
-			elif major == majorChoices[2]:
-				# strobe
-				if minor == minorChoices[major][0]:
-					# upDown_ordered
-					self.processHandle = threading.Thread(target=strobe.upDownLoopOrdered, args=(
-						self.strand, lambda: self.stopFlag))
+			# start up the procedure
+			targetFunction = self.functionMap[nextParam["name"]]
+			self.processHandle = threading.Thread(target=targetFunction, args=(
+				self.strand, nextParam, lambda: self.stopFlag))
 
-			# start the new thread
+			# timer to finish if needed
+			if "run_time" in nextParam:
+				self.timerHandle = threading.Thread(target=self.timerCallback,
+				                                    args=(nextParam["run_time"],))
+
+			# start all the things
 			if self.processHandle:
 				self.stopFlag = False
 				self.processHandle.start()
 
-		return valid
+			if self.timerHandle:
+				self.timerInterrupt = False
+				self.timerHandle.start()
+
+			if self.processHandle:
+				# this will enforce waiting correctly
+				self.processHandle.join()
+
+	def runProcedure(self, params):
+		"""Params is a list of dictionaries with all of the required keys.
+
+		All keys have been previously validated when read in.
+		This will iterate through each item in the list indefinitely, doing one at a time.
+		"""
+
+		self.backLock = True
+		self.procList = params
+		self.procCycle = cycle(params)
+		self.backLock = False
+
+	def timerCallback(self, timeout):
+		# print("Timer sleeping for {} seconds".format(timeout))
+		time.sleep(timeout)
+		self.stopFlag = True
 
 
+# home page
 @app.route('/')
 def index():
 	now = datetime.now()
@@ -109,24 +146,45 @@ def index():
 	}
 	return render_template('index.html', **templateData)
 
-@app.route('/twinkle')
-def twinkle():
-	return "Twinkly star!"
-
+# fun
 @app.route('/hello/<name>')
 def hello(name):
 	return render_template('page.html', name=name)
 
-@app.route('/run/<major>/<minor>')
-def runProcedure(major, minor):
-	if ts.runProcedure(major, minor):
-		templateData = {
-			'major' : major,
-			'minor' : minor
-		}
-		return render_template('procedure.html', **templateData)
+# responds to HTTP requests that have JSON data
+# TODO: implement GET for getting lists of valid options
+@app.route('/run', methods=['GET', 'POST'])
+def runProcedure():
+	try:
+		if request.method == 'POST':
+			# https://stackoverflow.com/a/23898949
+			data = str(request.get_data(), encoding='utf-8')
+			# format as json
+			info = json_api.sanitizePacket(data)
+
+			# check for errors
+			if isinstance(info, str):
+				print(data)
+				print(info)
+				return info
+			elif isinstance(info, list):
+				ts.runProcedure(info)
+				print(info)
+				return "accepted"
+			else:
+				print(data)
+				return "Error, invalid request"
+	except Exception:
+		pass
+	finally:
+		return "Failure!"
 
 
 if __name__ == '__main__':
-	ts = TreeServer()
-	app.run(debug=False, host='0.0.0.0')
+	try:
+		ts = TreeServer()
+		app.run(debug=False, host='0.0.0.0')
+	except KeyboardInterrupt as ki:
+		# try to clean up nicely
+		del ts
+		print("Exiting...")
