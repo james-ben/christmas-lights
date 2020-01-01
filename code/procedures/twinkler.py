@@ -20,6 +20,7 @@ class TwinkleLights():
 		self.twGroup = twg
 
 	def parseParams(self, params):
+		"""Read all the data from the input dictionary."""
 		self.color_set = colors.parseColorSet(params["color_set"])
 		self.color_ordered = params["color_ordered"]
 		self.brightness = params["brightness"]
@@ -34,6 +35,7 @@ class TwinkleLights():
 			self.num_runs = params["num_runs"]
 
 	def initStrand(self):
+		"""Set all the lights to be a color."""
 		if self.color_ordered:
 			colorCycle = cycle(self.color_set)
 			nextColor = next(colorCycle)
@@ -51,6 +53,7 @@ class TwinkleLights():
 		self.strand.showPixels()
 
 	def run(self, strand, params, stopFlag):
+		"""Target for new thread."""
 		# initialization
 		self.strand = strand
 		self.parseParams(params)
@@ -82,51 +85,3 @@ class TwinkleLights():
 			self.strand.setPixelColor(self.strand.randIdx(), nextColor)
 
 		self.strand.showPixels()
-
-
-def init_white(strand):
-	# init all to random white intensity
-	for i in range(strand.num_pixels):
-		strand.setPixelColor(i, twinkle.white())
-	strand.showPixels()
-
-
-def twinkle_white(strand, twGroup):
-	nextTime = twinkle.twinkleTime()
-	time.sleep(nextTime)
-
-	# twinkle group
-	for j in range(twGroup):
-		strand.setPixelColor(strand.randIdx(), twinkle.white())
-	strand.showPixels()
-
-
-def init_color(strand):
-	# init all to random colors
-	for i in range(strand.num_pixels):
-		strand.setPixelColor(i, twinkle.color())
-	strand.showPixels()
-
-
-def twinkle_color(strand, twGroup):
-	nextTime = twinkle.twinkleTime()
-	time.sleep(nextTime)
-
-	# twinkle group
-	for j in range(twGroup):
-		strand.setPixelColor(strand.randIdx(), twinkle.color())
-	strand.showPixels()
-
-
-def colorLoop(strand, twGroup, stopFlag):
-	init_color(strand)
-
-	while not stopFlag():
-		twinkle_color(strand, twGroup)
-
-
-def whiteLoop(strand, twGroup, stopFlag):
-	init_white(strand)
-
-	while not stopFlag():
-		twinkle_white(strand, twGroup)

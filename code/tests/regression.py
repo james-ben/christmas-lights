@@ -4,6 +4,7 @@ from urllib import request
 
 
 pi_url = "http://192.168.0.102:5000/run"
+local_url = "http://192.168.0.114:5000/run"
 
 def createRequest(url, data):
 	req = request.Request(url)
@@ -22,138 +23,158 @@ def makePiRequest(data):
 	resp = sendRequest(req, jsonData)
 	return resp
 
+def makeLocalRequest(data):
+	req, jsonData = createRequest(local_url, data)
+	resp = sendRequest(req, jsonData)
+	return resp
+
 
 def twinkleTest():
 	print("\n --- Twinkle test --- ")
+	aggregateRequest = []
+	sleepTime = 0
 
 	# default
-	twinkleData = {
+	twinkleData0 = {
 		"color_set": ["red", "green", "yellow", "white"],
 		"color_ordered": False,
 		"brightness": ["0", ".5"],
-		"run_time": "2",
+		"run_time": 30,
 	    "blink_time": ["0", ".5"],
 		"name": "twinkle",
 		# "num_runs": "5"
 	}
-	print("Default twinkle")
-	resp = makePiRequest(twinkleData)
-	time.sleep(10)
+	aggregateRequest.append(twinkleData0)
+	sleepTime += twinkleData0["run_time"]
 
 	# white twinkle
-	print("White twinkle")
-	twinkleData["color_set"] = ["white"]
-	resp = makePiRequest(twinkleData)
-	time.sleep(10)
+	twinkleData1 = dict(twinkleData0)
+	twinkleData1["color_set"] = ["white"]
+	aggregateRequest.append(twinkleData1)
+	sleepTime += twinkleData1["run_time"]
 
 	# off and on, just red
-	print("Red pulse")
-	twinkleData["color_set"] = ["red", "off"]
-	twinkleData["brightness"] = "0.4"
-	resp = makePiRequest(twinkleData)
-	time.sleep(10)
+	twinkleData2 = dict(twinkleData0)
+	twinkleData2["color_set"] = ["red", "off"]
+	twinkleData2["brightness"] = "0.4"
+	aggregateRequest.append(twinkleData2)
+	sleepTime += twinkleData2["run_time"]
 
 	# twinkle two colors
-	print("Red green twinkle")
-	twinkleData["color_set"] = ["red", "green"]
-	twinkleData["brightness"] = ["0", ".5"]
-	resp = makePiRequest(twinkleData)
-	time.sleep(10)
+	twinkleData3 = dict(twinkleData0)
+	twinkleData3["color_set"] = ["red", "green"]
+	aggregateRequest.append(twinkleData3)
+	sleepTime += twinkleData3["run_time"]
 
-	# TODO: twinkle num runs, see if exits
+	makePiRequest(aggregateRequest)
+	# makeLocalRequest(aggregateRequest)
+
+	time.sleep(sleepTime)
 
 
 def stripeTest():
 	print("\n --- Stripe test --- ")
+	aggregateRequest = []
+	sleepTime = 0
 
 	# default stripe pattern
-	stripeData = {
+	stripeData0 = {
 		"color_set": ["green", "yellow", "red", "white"],
 		"color_ordered": True,
 		"brightness": "0.5",
-	    "run_time": "5",
+	    "run_time": 5,
 		"blink_time": "0.001",
 		"name": "stripes",
 		"direction": "forward",
 	    # "num_runs": "5"
 	}
-	print("Default stripe")
-	resp = makePiRequest(stripeData)
-	time.sleep(8)
+	aggregateRequest.append(stripeData0)
+	sleepTime += stripeData0["run_time"]
 
 	# random all
-	print("Random stripes")
-	stripeData["color_ordered"] = False
-	resp = makePiRequest(stripeData)
-	time.sleep(10)
+	stripeData1 = dict(stripeData0)
+	stripeData1["color_ordered"] = False
+	aggregateRequest.append(stripeData1)
+	sleepTime += stripeData1["run_time"]
 
 	# down
-	print("Down stripes")
-	stripeData["color_ordered"] = True
-	stripeData["color_set"] = ["green", "red"]
-	stripeData["direction"] = "backward"
-	resp = makePiRequest(stripeData)
-	time.sleep(5)
+	stripeData2 = dict(stripeData0)
+	stripeData2["color_set"] = ["green", "red"]
+	stripeData2["direction"] = "backward"
+	aggregateRequest.append(stripeData2)
+	sleepTime += stripeData2["run_time"]
 
 	# blink time range
-	print("Testing variable blink time")
-	stripeData["blink_time"] = [0.001, 0.05]
-	resp = makePiRequest(stripeData)
-	time.sleep(10)
+	stripeData3 = dict(stripeData0)
+	stripeData3["blink_time"] = [0.001, 0.05]
+	aggregateRequest.append(stripeData3)
+	sleepTime += stripeData3["run_time"]
 
 	# bounce
-	print("Bounce stripes")
-	stripeData["direction"] = "bounce"
-	stripeData["blink_time"] = 0.001
-	resp = makePiRequest(stripeData)
-	time.sleep(5)
+	stripeData4 = dict(stripeData0)
+	stripeData4["direction"] = "bounce"
+	stripeData4["blink_time"] = 0.001
+	aggregateRequest.append(stripeData4)
+	sleepTime += stripeData4["run_time"]
+
+	# TODO: num runs, see if exits
+
+	makePiRequest(aggregateRequest)
+
+	# wait for the things to run
+	time.sleep(sleepTime)
 
 
 def strobeTest():
-	strobeData = {
+	print("\n --- Strobe Test --- ")
+	aggregateRequest = []
+	sleepTime = 0
+
+	strobeData0 = {
 		"name": "strobe",
 		"color_set": ["green", "red", "white"],
 		"color_ordered": True,
 		"brightness": ["0.5", "0.5"],
-	    "run_time": "10",
+	    "run_time": 10,
 		"blink_time": ["0.2", "0.2"],
 		"direction": "bounce",
 		# "num_runs": "5"
 	}
-
 	# default strobe
-	print("Default stripe")
-	resp = makePiRequest(strobeData)
-	time.sleep(8)
+	aggregateRequest.append(strobeData0)
+	sleepTime += strobeData0["run_time"]
 
-	# strobe down
-	print("strobe down, single color")
-	strobeData["direction"] = "backward"
-	strobeData["color_set"] = "blue"
-	resp = makePiRequest(strobeData)
-	time.sleep(5)
+	# strobe down, single color
+	strobeData1 = dict(strobeData0)
+	strobeData1["direction"] = "backward"
+	strobeData1["color_set"] = "blue"
+	aggregateRequest.append(strobeData1)
+	sleepTime += strobeData1["run_time"]
 
 	# random strobe time
-	print("random strobe time")
-	strobeData["blink_time"] = [0.1, 0.6]
-	strobeData["direction"] = "bounce"
-	strobeData["color_set"] = "blue"
-	resp = makePiRequest(strobeData)
-	time.sleep(10)
+	strobeData2 = dict(strobeData0)
+	strobeData2["blink_time"] = [0.1, 0.6]
+	strobeData2["direction"] = "bounce"
+	strobeData2["color_set"] = "blue"
+	aggregateRequest.append(strobeData2)
+	sleepTime += strobeData2["run_time"]
 
 	# strobe up
-	print("strobe up")
-	strobeData["color_set"] = ["green", "red", "white"]
-	strobeData["blink_time"] = 0.2
-	strobeData["direction"] = "forward"
-	resp = makePiRequest(strobeData)
-	time.sleep(5)
+	strobeData3 = dict(strobeData0)
+	strobeData3["direction"] = "forward"
+	aggregateRequest.append(strobeData3)
+	sleepTime += strobeData3["run_time"]
+
+	makePiRequest(aggregateRequest)
+
+	# wait for the things to run
+	time.sleep(sleepTime)
 
 
 def main():
 	# test a variety of things
-	# twinkleTest()
-	# stripeTest()
+	twinkleTest()
+	stripeTest()
 	strobeTest()
 
 

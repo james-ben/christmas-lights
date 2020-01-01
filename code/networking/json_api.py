@@ -33,6 +33,7 @@ def validateDirection(name):
 
 
 def makeListOfTwo(val, default):
+	"""Makes a list of 2 floating point numbers."""
 	if isinstance(val, list):
 		if len(val) == 0:
 			val.append(default)
@@ -59,12 +60,29 @@ def makeListOfTwo(val, default):
 
 
 def sanitizePacket(packet):
-	"""Sanitize the JSON packet from the request.
+	"""Sanitize the JSON packet from the request. Could be one dict or list of dicts."""
+	data = json.loads(packet)
+	if isinstance(data, dict):
+		returnData = [handleDict(data)]
+	elif isinstance(data, list):
+		returnData = []
+		for d in data:
+			if isinstance(d, dict):
+				returnData.append(handleDict(d))
+			else:
+				return "Error, list contained a non-dictionary item!"
+	else:
+		return "Error, invalid JSON object type!"
+
+	return returnData
+
+
+def handleDict(data):
+	"""One dictionary at a time.
 
 	Makes sure all values are in acceptable ranges.
 	Adds in defaults if they don't exist.
 	"""
-	data = json.loads(packet)
 	returnDict = {}
 
 	# TODO: some keys may accept the special value "random"

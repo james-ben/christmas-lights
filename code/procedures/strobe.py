@@ -6,9 +6,6 @@ from light_utils import colors
 from light_utils import twinkle
 
 
-colorList = [c.value for c in colors.choices]
-
-
 class StrobeLights:
 	def __init__(self):
 		self.timerInterrupt = False
@@ -23,6 +20,7 @@ class StrobeLights:
 		self.colorCycle = None
 
 	def parseParams(self, params):
+		"""Read all the data from the input dictionary."""
 		self.color_set = colors.parseColorSet(params["color_set"])
 		self.color_ordered = params["color_ordered"]
 		self.brightness = params["brightness"]
@@ -46,7 +44,6 @@ class StrobeLights:
 		return colors.colorBrightness(nextColor, self.brightness)
 
 	def run(self, grid, params, stopFlag):
-		print("Initializing strobe lights...")
 		self.grid = grid
 		self.parseParams(params)
 
@@ -93,24 +90,3 @@ class StrobeLights:
 			self.grid.setRow(j, color)
 			time.sleep(twinkle.getTime(self.blink_time))
 			self.grid.setRow(j, colors.Off)
-
-
-def rowColorTest(g):
-	"""Tests that the rows are set up correctly."""
-	g.setRow(0, colors.Color.Green.value)
-	g.setRow(1, colors.Color.Red.value)
-	g.setRow(2, colors.Color.Yellow.value)
-	g.setRow(3, colors.Color.White.value)
-
-
-def upDownLoopOrdered(grid, stopFlag, waitTime=0.25):
-	while not stopFlag():
-		for c in colorList:
-			for i in range(4):
-				grid.setRow(i, c)
-				time.sleep(waitTime)
-				grid.setRow(i, colors.Off)
-			for j in range(2, 0, -1):
-				grid.setRow(j, c)
-				time.sleep(waitTime)
-				grid.setRow(j, colors.Off)

@@ -5,9 +5,6 @@ from itertools import cycle
 from light_utils import colors, twinkle
 
 
-colorList = [c.value for c in colors.choices]
-
-
 class StripeLights:
 	def __init__(self):
 		self.timerInterrupt = False
@@ -22,6 +19,7 @@ class StripeLights:
 		self.colorCycle = None
 
 	def parseParams(self, params):
+		"""Read all the data from the input dictionary."""
 		self.color_set = colors.parseColorSet(params["color_set"])
 		self.color_ordered = params["color_ordered"]
 		self.brightness = params["brightness"]
@@ -83,28 +81,3 @@ class StripeLights:
 			self.strand.setPixelColor(i, color)
 			self.strand.showPixels()
 			time.sleep(twinkle.getTime(self.blink_time))
-
-
-def upLoopOrdered(strand, stopFlag):
-	while not stopFlag():
-		for c in colorList:
-			for i in range(strand.num_pixels):
-				strand.setPixelColor(i, c)
-				strand.showPixels()
-
-
-def upDownLoopOrdered(strand, stopFlag):
-	upFlag = True
-
-	while not stopFlag():
-		for c in colorList:
-			if upFlag:
-				for i in range(strand.num_pixels):
-					strand.setPixelColor(i, c)
-					strand.showPixels()
-				upFlag = False
-			else:
-				for i in range(strand.num_pixels-1, -1, -1):
-					strand.setPixelColor(i, c)
-					strand.showPixels()
-				upFlag = True
