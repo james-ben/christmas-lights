@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import time
 import threading
 from itertools import cycle
@@ -7,7 +8,7 @@ from datetime import datetime
 from flask import Flask, request, render_template
 
 sys.path.append(os.path.abspath("../"))
-from procedures import twinkler, stripes, strobe
+from procedures import twinkler, stripes, strobe, columns
 from networking import json_api
 from light_utils import colors
 
@@ -42,11 +43,13 @@ class TreeServer(object):
 		self.twinkler = twinkler.TwinkleLights()
 		self.striper = stripes.StripeLights()
 		self.strobe = strobe.StrobeLights()
+		self.column = columns.ColumnLights()
 
 		self.functionMap = {
 			"twinkle": self.twinkler.run,
 			"stripes": self.striper.run,
 			"strobe": self.strobe.run,
+			"columns": self.column.run,
 		}
 
 		# init the state
@@ -178,6 +181,16 @@ def runProcedure():
 		pass
 	finally:
 		return "Failure!"
+
+@app.route('/get/<req>')
+def getData(req):
+	if req == "colors":
+		return json.dumps(colors.colorNameMap)
+	elif req == "procedures":
+		procList = list(ts.functionMap.keys())
+		return json.dumps(json.dumps(procList))
+	else:
+		return "Invalid request!"
 
 
 if __name__ == '__main__':

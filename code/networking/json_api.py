@@ -5,6 +5,7 @@ procedureChoices = [
 	"twinkle",
 	"stripes",
 	"strobe",
+	"columns",
 ]
 
 directionChoices = [
@@ -63,12 +64,20 @@ def sanitizePacket(packet):
 	"""Sanitize the JSON packet from the request. Could be one dict or list of dicts."""
 	data = json.loads(packet)
 	if isinstance(data, dict):
+		if not data:
+			return "Error, empty dictionary"
 		returnData = [handleDict(data)]
 	elif isinstance(data, list):
+		if not data:
+			return "Error, empty list"
 		returnData = []
 		for d in data:
 			if isinstance(d, dict):
-				returnData.append(handleDict(d))
+				packetData = handleDict(d)
+				if isinstance(packetData, str):
+					return packetData
+				else:
+					returnData.append(handleDict(d))
 			else:
 				return "Error, list contained a non-dictionary item!"
 	else:

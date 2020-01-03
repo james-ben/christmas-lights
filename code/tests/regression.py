@@ -4,7 +4,7 @@ from urllib import request
 
 
 pi_url = "http://192.168.0.102:5000/run"
-local_url = "http://192.168.0.114:5000/run"
+local_url = "http://192.168.0.111:5000/run"
 
 def createRequest(url, data):
 	req = request.Request(url)
@@ -171,11 +171,41 @@ def strobeTest():
 	time.sleep(sleepTime)
 
 
+def columnTest():
+	print("\n --- Column Test --- ")
+	aggregateRequest = []
+	sleepTime = 0
+
+	colData0 = {
+		"name": "columns",
+		"color_set": ["green", "red", "white"],
+		"color_ordered": True,
+		"brightness": ["0.5", "0.5"],
+		"run_time": 10,
+		"blink_time": 0.02,
+		"direction": "bounce",
+		# "num_runs": "5"
+	}
+	aggregateRequest.append(colData0)
+	sleepTime += colData0["run_time"]
+
+	# colData1 = dict(colData0)
+	# colData1["direction"] = "backward"
+	# colData1["color_set"] = "blue"
+	# colData1["run_time"] = 5
+	# aggregateRequest.append(colData1)
+	# sleepTime += colData1["run_time"]
+
+	makePiRequest(aggregateRequest)
+	time.sleep(sleepTime)
+
+
 def main():
 	# test a variety of things
 	twinkleTest()
-	stripeTest()
-	strobeTest()
+	# stripeTest()
+	# strobeTest()
+	# columnTest()
 
 
 if __name__ == '__main__':
