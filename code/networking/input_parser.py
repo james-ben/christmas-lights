@@ -6,6 +6,7 @@ procedureChoices = [
 	"stripes",
 	"strobe",
 	"columns",
+	"blink",
 ]
 
 directionChoices = [
@@ -153,9 +154,10 @@ def handleDict(data):
 			else:
 				returnDict[key] = None
 
-		# any other key is invalid, but we'll just ignore it
+		# procedures can have custom keys, so add those here
+		# the checking must be done in the procedure side to make sure it is a valid input
 		else:
-			print("Invalid key: {}".format(key))
+			returnDict[key] = val
 
 	# now make sure the dictionary has all required values
 	if not "name" in returnDict:

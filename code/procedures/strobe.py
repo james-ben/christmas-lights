@@ -70,23 +70,23 @@ class StrobeLights:
 			self.strobeBounce(nextColor)
 
 	def strobeUp(self, color):
-		for i in range(self.grid.num_cols):
+		for i in range(self.grid.num_rows):
 			self.grid.setRow(i, color)
 			time.sleep(twinkle.getTime(self.blink_time))
 			self.grid.setRow(i, colors.Off)
 
 	def strobeDown(self, color):
-		for i in range(self.grid.num_cols-1, -1, -1):
+		for i in range(self.grid.num_rows-1, -1, -1):
 			self.grid.setRow(i, color)
 			time.sleep(twinkle.getTime(self.blink_time))
 			self.grid.setRow(i, colors.Off)
 
 	def strobeBounce(self, color):
-		for i in range(self.grid.num_cols):
+		for i in range(self.grid.num_rows):
 			self.grid.setRow(i, color)
 			time.sleep(twinkle.getTime(self.blink_time))
 			self.grid.setRow(i, colors.Off)
-		for j in range(self.grid.num_cols-2, 0, -1):
+		for j in range(self.grid.num_rows-2, 0, -1):
 			self.grid.setRow(j, color)
 			time.sleep(twinkle.getTime(self.blink_time))
 			self.grid.setRow(j, colors.Off)
