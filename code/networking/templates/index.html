@@ -3,7 +3,7 @@
         /* --var-color-text-default: #3C3A51; */
         --var-color-text-default: #333;
         --var-color-text-dark: black;
-        --var-color-text-light: #f9f9f9;
+        --var-color-text-light: #f0f0f0;
         --var-lights-width: 10px;
 /** bright **/
         --var-color-primary: #288C84;
@@ -63,21 +63,41 @@
         opacity: .4;
         cursor: auto;
     }
-    .presets .button-container button{
-        height: 100px;
+    button.submit {
+        opacity: 1;
+        cursor: pointer;
     }
-    .presets .button-container {
+    #procedures div {
+        flex: 1;
+        margin-right: 5px;
+    }
+    #procedures input {
+        font-size: 20px;
+        border: none;
+        padding: 3px 5px;
+        padding-right: 2px;
+        margin-left: 5px;
+        margin-bottom: 5px;
+        font-weight: 100;
+        flex: 1;
+        width: 100%;
+    }
+    #procedures input.runTime {
+        max-width: 75px;
+    }
+    #procedures {
+        width: 100%;
         display: flex;
-        flex-flow: row wrap;
-        max-width: 250px;
+        flex-flow: column nowrap;
     }
-    form div {
-        padding: 5px;
-        margin: 5px 10px;
+    #procedures .row {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: stretch;
+        justify-content: space-between;
+        margin: 10px 0px;
     }
-    form input {
-        max-width: 30px;
-    }
+
     input#direction {
         max-width: 100px;
     }
@@ -116,14 +136,18 @@
     .colorSet input:checked + label {
         opacity: 1;
     }
-
+    .header {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+    }
 
     /**
      * CHRISTMAS LIGHTS
      */
     .christmas-lights {
         overflow: hidden;
-        position: absolute;
+        position: fixed;
         z-index: 1;
         margin: -13px 0 0 0;
         padding: 0;
@@ -131,7 +155,9 @@
         flex-flow: row;
         justify-content: space-between;
         width: 100%;
-        height: 10%;
+        height: 7%;
+        background: #333;
+
     }
     .christmas-lights li {
         position: relative;
@@ -207,76 +233,37 @@
 </ul>
 <h1>Epic Christmas Lights</h1>
 <div class="content">
-<div class="panel">
-        <div class="presets">
-            <h2>Presets</h2>
-            <div class="button-container">
-                <button type="button" onclick="runProcedure('twinkle-color')">Twinkle Color</button>
-                <button type="button" onclick="runProcedure('twinkle-white')">Twinkle White</button>
-                <button type="button" onclick="runProcedure('stripes-up')">Stripe Up</button>
-                <button type="button" onclick="runProcedure('stripes-up-down')">Stripe Up/Down</button>
-                <button type="button" onclick="runProcedure('strobe')">Strobe</button>
+    <div class="panel">
+        <div class="header">
+            <h2>Custom Christmas Lights</h2>
+            <button class="submit" onclick="runCustomProcedures()">Submit</button>
+        </div>
+        <div>
+            <div id="procedures">
+                <datalist id="colors">
+                        <option value="Red">
+                        <option value="Green">
+                        <option value="Blue">
+                        <option value="Yellow">
+                        <option value="White">
+                        <option value="Off">
+                </datalist>
+                <datalist id="names">
+                        <option value="Twinkle">
+                        <option value="Stripes">
+                        <option value="Strobe">
+                        <option value="Blink">
+                        <option value="Columns">
+                </datalist>
+                <datalist id="directions">
+                        <option value="Forward">
+                        <option value="Backward">
+                        <option value="Bounce">
+                </datalist>
             </div>
+            <button onclick="createRowEl({}, [], '')">+</button>
+        </div>
     </div>
-</div>
-<div class="panel">
-    <h2>Custom</h2>
-    <form id="custom_procedure">
-        <div id="name" class="procedure-names button-container">
-            <button type="button" onclick="setProcedureName(this)" value="twinkle">Twinkle Color</button>
-            <button type="button" onclick="setProcedureName(this)" value="stripes">Stripes</button>
-            <button type="button" onclick="setProcedureName(this)" value="strobe" disabled>Strobe</button>
-        </div>
-        <div>
-            <h3>Direction</h3>
-            <input id="direction" type="text" placeholder="forward, backward, bounce" value="forward"/>
-            <label for="direction">Direction</label></br>
-        </div>
-        <div>
-            <h3>Colors</h3>
-            <div class="colorSet">
-                <input id="red" type="checkbox" value="red"/>
-                <label style="background:rgb(190, 28, 28)" for="red">Red</label></br>
-                
-                <input id="green" type="checkbox" value="green" />
-                <label style="background:rgb(30, 126, 30)" for="green">Green</label></br>
-                
-                <input id="yellow" type="checkbox" value="yellow" />
-                <label style="background:rgb(218, 179, 10)" for="yellow">Yellow</label></br>
-                
-                <input id="blue" type="checkbox" value="blue" />
-                <label style="background:rgb(34, 34, 163)" for="blue">Blue</label></br>
-                
-                <input id="white" type="checkbox" value="white" />
-                <label style="background:#afafaf" for="white">White</label></br>
-            </div>
-        </div>
-       
-        <div>
-            <input id="colorOrdered" type="checkbox" value=""/>
-            <label for="colorOrdered">Random Colors</label></br>
-        </span>
-        <div>
-            <h3>Brightness</h3>
-            <input id="brightnessMin" type="text" placeholder="0" maxlength="2" value="0"/>
-            <label for="brightnessMin">Brightness Min Value</label></br>
-            <input id="brightnessMax" type="text" placeholder="1" maxlength="2" value=".5"/>
-            <label for="brightnessMax">Brightness Max Value</label></br>
-        </div>
-        <div>
-            <h3>Timing</h3>
-            <input id="runTime" type="text" placeholder="0" maxlength="2" value="2"/>
-            <label for="runTime">Run Time</label></br>
-            <input id="blinkTimeMin" type="text" placeholder="0" maxlength="5" value="1"/>
-            <label for="blinkTimeMin">Blink Time Min</label></br>
-            <input id="blinkTimeMax" type="text" placeholder="0" maxlength="5" value="3"/>
-            <label for="blinkTimeMax">Blink Time Max</label></br>
-            <input id="numRuns" type="text" placeholder="0" value="5"/>
-            <label for="numRuns">Number of Runs</label></br>
-        </div>
-        <button onclick="submitForm()">Submit</button>
-    </form>
-</div>
 </div>
 </body>
 </html>

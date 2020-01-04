@@ -1,71 +1,142 @@
 // const server = 'http://192.168.0.114:5000';
 const server = 'http://192.168.0.102:5000';
-async function submitForm() {
-    const form = window['custom_procedure'];
-    await runCustomProcedure({
-        'color_set': Array.from(form.querySelectorAll('.colorSet input:checked')).map(input => input.value),
-        'color_ordered': form.querySelector('#colorOrdered').checked,
-        'brightness': [form.querySelector('#brightnessMin').value, form.querySelector('#brightnessMax').value],
-        'run_time': form.querySelector('#runTime').value,
-        'blink_time': [form.querySelector('#blinkTimeMin').value, form.querySelector('#blinkTimeMax').value],
-        'name': Array.from(form.querySelectorAll('#name button')).filter(x=>x.dataValue)[0].value,
-        'direction': form.querySelector('#direction').value,
-        'num_runs': form.querySelector('#numRuns').value
+// const server = 'http://10.81.1.111:5000';
+// const procedures = [];
+
+window.onload = () => {
+    createRowEl({}, [], '');
+}
+
+
+function createRunTimeEl(id) {
+    const el = document.createElement('input');
+    el.type = 'text';
+    el.placeholder='Time(s)';
+    el.classList.add('runTime');
+    return el;
+}
+
+function createNameEl(id, name) {
+    const el = document.createElement('input');
+    el.type = 'list';
+    el.placeholder = 'Name';
+    el.classList.add('name');
+    el.setAttribute('list', 'names');
+    if (name) el.innerText = `${name}: `;
+    return el;
+}
+
+function createColorEl(colorSet) {
+    const el = document.createElement('div');
+    const color = document.createElement('input');
+    el.classList.add('color-set');
+    color.type = 'list';
+    color.placeholder = `Color`; 
+    color.setAttribute('list', 'colors');
+    if (colorSet.length) el.innerText = colorSet.join(', ');
+    el.appendChild(color);
+    el.appendChild(color.cloneNode(true));
+    return el;
+}
+
+function createDirectionEl() {
+    const el = document.createElement('input');
+    el.type = 'list';
+    el.placeholder = `Direction`;
+    el.classList.add('direction');
+    el.setAttribute('list', 'directions');
+    return el;
+}
+
+function createMinMaxEl(name) {
+    const el = document.createElement('div');
+    const min = document.createElement('input');
+    const max = document.createElement('input');
+    const className = name.toLowerCase().replace(' ', '-');
+    el.classList.add(`${className}`);
+    min.type = 'text';
+    max.type = 'text';
+    min.placeholder = `Min ${name}`;
+    max.placeholder = `Max ${name}`;
+    el.appendChild(min);
+    el.appendChild(max);
+    return el;
+}
+
+function createRowEl(procedure, colorSet, name) {
+    const proceduresElement = window['procedures'];
+    const row = document.createElement('div');
+    const id = procedure && procedure.id || '';
+    row.classList.add('row');
+    row.appendChild(createRunTimeEl(id));
+    row.appendChild(createNameEl(id, name));
+    row.appendChild(createDirectionEl());
+    row.appendChild(createColorEl(colorSet) );
+    row.appendChild(createMinMaxEl('Brightness'));
+    row.appendChild(createMinMaxEl('Blink Time'));
+    proceduresElement.appendChild(row);
+}
+
+function getChildrenValues(el) {
+    const values = [];
+    Array.from(el.children).forEach(child => {
+        if (child.value) values.push(child.value);
     });
+    return values;
+}
+
+function getProcedure(row) {
+    const [ runTime, name, direction, colors, brightness, blinkTime] = Array.from(row.children);
+    const colorSet = getChildrenValues(colors);
+    const brightnessSet = getChildrenValues(brightness);
+    const blinkTimeSet = getChildrenValues(blinkTime);
+    return {
+        'id': Math.random().toString(36).substring(2, 15),
+        'color_set': colorSet,
+        'brightness': brightnessSet,
+        'blink_time': blinkTimeSet,
+        'name': name.value.toLowerCase(),
+        'direction': direction.value.toLowerCase(),
+        'run_time': runTime.value,
+    };
+
 }
 // Example POST method implementation:
 async function postData(url = '', data = {}) {
     // Default options are marked with *
     const response = await fetch(url, {
-      method: 'POST',
-      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
+        method: 'POST',
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
         'Content-Type': 'text/plain'
-      },
-      redirect: 'follow', // manual, *follow, error
-      referrerPolicy: 'no-referrer', // no-referrer, *client
-      body: JSON.stringify(data)
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *client
+        body: JSON.stringify(data)
     });
     return await response.json(); // parses JSON response into native JavaScript objects
-  }
-  
+}
 
-async function runCustomProcedure(data) {
-    postData(`${server}/run`, data)
-    .then((data) => {
-        console.log(data);
+function getProcedures() {
+    const procedures = [];
+    const rows = window['procedures'].querySelectorAll('.row')
+    rows.forEach(row => {
+        procedures.push(getProcedure(row));
+    });
+    return procedures;
+}
+
+async function runCustomProcedures() {
+    const procedures = getProcedures();
+    postData(`${server}/run`, procedures)
+    .then((procedures) => {
+        console.log(procedures);
+    })
+    .catch((error) => {
+        console.error(error);
     });
 }  
- 
-async function runProcedure(action) {
-    debugger
-    let response = {};
-    try {
-    switch(action) {
-        case 'twinkle-color': 
-            response = await fetch(`${server}/run/twinkle/color`);
-            break;
-        case 'twinkle-white':
-            response = await fetch(`${server}/run/twinkle/white`);
-            break;
-        case 'stripes-up':
-            response = await fetch(`${server}/run/stripes/up_ordered`);
-            break;
-        case 'stripes-up-down':
-            response = await fetch(`${server}/run/stripes/upDown_ordered`);
-            break;
-        case 'strobe':
-            response = await fetch(`${server}/run/strobe/upDown_ordered`);
-            break;
-        default: 
-            break;
-    }
-    }
-    catch (error) {
-        console.error(error);
-    }
-}
 
 function setProcedureName(buttonEl) {
     const allButtons = window['custom_procedure'].querySelectorAll('#name button');
