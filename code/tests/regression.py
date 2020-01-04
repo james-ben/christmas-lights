@@ -2,9 +2,13 @@ import json
 import time
 from urllib import request
 
+from procedures import (twinkler, strobe,
+                        stripes, columns,
+                        blink)
+
 
 pi_url = "http://192.168.0.102:5000/run"
-local_url = "http://192.168.0.114:5000/run"
+local_url = "http://192.168.0.111:5000/run"
 
 def createRequest(url, data):
 	req = request.Request(url)
@@ -35,20 +39,12 @@ def twinkleTest():
 	sleepTime = 0
 
 	# default
-	twinkleData0 = {
-		"color_set": ["red", "green", "yellow", "white"],
-		"color_ordered": False,
-		"brightness": ["0", ".5"],
-		"run_time": 30,
-	    "blink_time": ["0", ".5"],
-		"name": "twinkle",
-		# "num_runs": "5"
-	}
+	twinkleData0 = dict(twinkler.presets[0]["data"])
 	aggregateRequest.append(twinkleData0)
 	sleepTime += twinkleData0["run_time"]
 
 	# white twinkle
-	twinkleData1 = dict(twinkleData0)
+	twinkleData1 = dict(twinkler.presets[1]["data"])
 	twinkleData1["color_set"] = ["white"]
 	aggregateRequest.append(twinkleData1)
 	sleepTime += twinkleData1["run_time"]
@@ -78,22 +74,12 @@ def stripeTest():
 	sleepTime = 0
 
 	# default stripe pattern
-	stripeData0 = {
-		"color_set": ["green", "yellow", "red", "white"],
-		"color_ordered": True,
-		"brightness": "0.5",
-	    "run_time": 5,
-		"blink_time": "0.001",
-		"name": "stripes",
-		"direction": "forward",
-	    # "num_runs": "5"
-	}
+	stripeData0 = dict(stripes.presets[0]["data"])
 	aggregateRequest.append(stripeData0)
 	sleepTime += stripeData0["run_time"]
 
 	# random all
-	stripeData1 = dict(stripeData0)
-	stripeData1["color_ordered"] = False
+	stripeData1 = dict(stripes.presets[1]["data"])
 	aggregateRequest.append(stripeData1)
 	sleepTime += stripeData1["run_time"]
 
@@ -111,9 +97,7 @@ def stripeTest():
 	sleepTime += stripeData3["run_time"]
 
 	# bounce
-	stripeData4 = dict(stripeData0)
-	stripeData4["direction"] = "bounce"
-	stripeData4["blink_time"] = 0.001
+	stripeData4 = dict(stripes.presets[2]["data"])
 	aggregateRequest.append(stripeData4)
 	sleepTime += stripeData4["run_time"]
 
@@ -130,17 +114,8 @@ def strobeTest():
 	aggregateRequest = []
 	sleepTime = 0
 
-	strobeData0 = {
-		"name": "strobe",
-		"color_set": ["green", "red", "white"],
-		"color_ordered": True,
-		"brightness": ["0.5", "0.5"],
-	    "run_time": 10,
-		"blink_time": ["0.2", "0.2"],
-		"direction": "bounce",
-		# "num_runs": "5"
-	}
 	# default strobe
+	strobeData0 = dict(strobe.presets[0]["data"])
 	aggregateRequest.append(strobeData0)
 	sleepTime += strobeData0["run_time"]
 
@@ -171,11 +146,44 @@ def strobeTest():
 	time.sleep(sleepTime)
 
 
+def columnTest():
+	print("\n --- Column Test --- ")
+	aggregateRequest = []
+	sleepTime = 0
+
+	# default
+	colData0 = dict(columns.presets[0]["data"])
+	aggregateRequest.append(colData0)
+	sleepTime += colData0["run_time"]
+
+	colData1 = dict(columns.presets[1]["data"])
+	aggregateRequest.append(colData1)
+	sleepTime += colData1["run_time"]
+
+	makePiRequest(aggregateRequest)
+	time.sleep(sleepTime)
+
+
+def blinkTest():
+	print("\n --- Blink Test --- ")
+	aggregateRequest = []
+	sleepTime = 0
+
+	for p in blink.presets:
+		aggregateRequest.append(p["data"])
+		sleepTime += p["data"]["run_time"]
+
+	makePiRequest(aggregateRequest)
+	time.sleep(sleepTime)
+
+
 def main():
 	# test a variety of things
 	twinkleTest()
 	stripeTest()
 	strobeTest()
+	columnTest()
+	blinkTest()
 
 
 if __name__ == '__main__':

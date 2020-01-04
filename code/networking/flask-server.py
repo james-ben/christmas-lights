@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import time
 import threading
 from itertools import cycle
@@ -7,8 +8,10 @@ from datetime import datetime
 from flask import Flask, request, render_template
 
 sys.path.append(os.path.abspath("../"))
-from procedures import twinkler, stripes, strobe
-from networking import json_api
+from procedures import (twinkler, stripes,
+                        strobe, columns,
+                        blink)
+from networking import input_parser
 from light_utils import colors
 
 # import the right kind based on the system
@@ -42,11 +45,15 @@ class TreeServer(object):
 		self.twinkler = twinkler.TwinkleLights()
 		self.striper = stripes.StripeLights()
 		self.strobe = strobe.StrobeLights()
+		self.column = columns.ColumnLights()
+		self.blinker = blink.BlinkLights()
 
 		self.functionMap = {
 			"twinkle": self.twinkler.run,
 			"stripes": self.striper.run,
 			"strobe": self.strobe.run,
+			"columns": self.column.run,
+			"blink": self.blinker.run,
 		}
 
 		# init the state
@@ -152,7 +159,6 @@ def hello(name):
 	return render_template('page.html', name=name)
 
 # responds to HTTP requests that have JSON data
-# TODO: implement GET for getting lists of valid options
 @app.route('/run', methods=['GET', 'POST'])
 def runProcedure():
 	try:
@@ -160,7 +166,7 @@ def runProcedure():
 			# https://stackoverflow.com/a/23898949
 			data = str(request.get_data(), encoding='utf-8')
 			# format as json
-			info = json_api.sanitizePacket(data)
+			info = input_parser.sanitizePacket(data)
 
 			# check for errors
 			if isinstance(info, str):
@@ -178,6 +184,32 @@ def runProcedure():
 		pass
 	finally:
 		return "Failure!"
+
+
+# names of options for getting
+get_options = [
+	"colors",
+	"procedures",
+	"presets",
+]
+
+@app.route('/get/<req>')
+def getData(req):
+	if req == "options":
+		return json.dumps(get_options)
+	elif req == get_options[0]:
+		return json.dumps(colors.colorNameMap)
+	elif req == get_options[1]:
+		procList = list(ts.functionMap.keys())
+		return json.dumps(procList)
+	elif req == get_options[2]:
+		presets = []
+		presets.extend(twinkler.presets)
+		presets.extend(strobe.presets)
+		presets.extend(stripes.presets)
+		return json.dumps(presets)
+	else:
+		return "Invalid request!"
 
 
 if __name__ == '__main__':
