@@ -70,23 +70,67 @@ class StrobeLights:
 			self.strobeBounce(nextColor)
 
 	def strobeUp(self, color):
-		for i in range(4):
+		for i in range(self.grid.num_cols):
 			self.grid.setRow(i, color)
 			time.sleep(twinkle.getTime(self.blink_time))
 			self.grid.setRow(i, colors.Off)
 
 	def strobeDown(self, color):
-		for i in range(3, -1, -1):
+		for i in range(self.grid.num_cols-1, -1, -1):
 			self.grid.setRow(i, color)
 			time.sleep(twinkle.getTime(self.blink_time))
 			self.grid.setRow(i, colors.Off)
 
 	def strobeBounce(self, color):
-		for i in range(4):
+		for i in range(self.grid.num_cols):
 			self.grid.setRow(i, color)
 			time.sleep(twinkle.getTime(self.blink_time))
 			self.grid.setRow(i, colors.Off)
-		for j in range(2, 0, -1):
+		for j in range(self.grid.num_cols-2, 0, -1):
 			self.grid.setRow(j, color)
 			time.sleep(twinkle.getTime(self.blink_time))
 			self.grid.setRow(j, colors.Off)
+
+
+# preset procedures that the client can request
+presets = [
+	{
+		"name" : "strobe bounce",
+		"type" : "strobe",
+		"data" : {
+			"name": "strobe",
+			"color_set": ["green", "red", "white"],
+			"color_ordered": True,
+			"brightness": ["0.5", "0.5"],
+		    "run_time": 10,
+			"blink_time": ["0.2", "0.2"],
+			"direction": "bounce",
+		}
+	},
+	{
+		"name" : "strobe up",
+		"type" : "strobe",
+		"data" : {
+			"name": "strobe",
+			"color_set": ["green", "red", "white"],
+			"color_ordered": True,
+			"brightness": ["0.5", "0.5"],
+		    "run_time": 10,
+			"blink_time": ["0.2", "0.2"],
+			"direction": "forward",
+		}
+	},
+	{
+		"name" : "strobe down blue",
+		"type" : "strobe",
+		"data" : {
+			"name": "strobe",
+			"color_set": ["blue"],
+			"color_ordered": True,
+			"brightness": ["0.5", "0.5"],
+		    "run_time": 10,
+			"blink_time": ["0.2", "0.2"],
+			"direction": "forward",
+		}
+	},
+]

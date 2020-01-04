@@ -189,12 +189,12 @@ def columnTest():
 	aggregateRequest.append(colData0)
 	sleepTime += colData0["run_time"]
 
-	# colData1 = dict(colData0)
-	# colData1["direction"] = "backward"
-	# colData1["color_set"] = "blue"
-	# colData1["run_time"] = 5
-	# aggregateRequest.append(colData1)
-	# sleepTime += colData1["run_time"]
+	colData1 = dict(colData0)
+	colData1["direction"] = "forward"
+	colData1["color_set"] = "blue"
+	colData1["run_time"] = 5
+	aggregateRequest.append(colData1)
+	sleepTime += colData1["run_time"]
 
 	makePiRequest(aggregateRequest)
 	time.sleep(sleepTime)
@@ -203,9 +203,9 @@ def columnTest():
 def main():
 	# test a variety of things
 	twinkleTest()
-	# stripeTest()
-	# strobeTest()
-	# columnTest()
+	stripeTest()
+	strobeTest()
+	columnTest()
 
 
 if __name__ == '__main__':

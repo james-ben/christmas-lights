@@ -182,13 +182,29 @@ def runProcedure():
 	finally:
 		return "Failure!"
 
+
+# names of options for getting
+get_options = [
+	"colors",
+	"procedures",
+	"presets",
+]
+
 @app.route('/get/<req>')
 def getData(req):
-	if req == "colors":
+	if req == "options":
+		return json.dumps(get_options)
+	elif req == get_options[0]:
 		return json.dumps(colors.colorNameMap)
-	elif req == "procedures":
+	elif req == get_options[1]:
 		procList = list(ts.functionMap.keys())
-		return json.dumps(json.dumps(procList))
+		return json.dumps(procList)
+	elif req == get_options[2]:
+		presets = []
+		presets.extend(twinkler.presets)
+		presets.extend(strobe.presets)
+		presets.extend(stripes.presets)
+		return json.dumps(presets)
 	else:
 		return "Invalid request!"
 

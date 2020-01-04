@@ -81,3 +81,46 @@ class StripeLights:
 			self.strand.setPixelColor(i, color)
 			self.strand.showPixels()
 			time.sleep(twinkle.getTime(self.blink_time))
+
+
+presets = [
+	{
+		"name" : "stripe default",
+		"type" : "stripes",
+		"data" : {
+			"color_set": ["green", "yellow", "red", "white"],
+			"color_ordered": True,
+			"brightness": "0.5",
+		    "run_time": 5,
+			"blink_time": "0.002",
+			"name": "stripes",
+			"direction": "forward",
+		}
+	},
+	{
+		"name" : "stripe random",
+		"type" : "stripes",
+		"data" : {
+			"color_set": ["green", "yellow", "red", "white"],
+			"color_ordered": False,
+			"brightness": "0.5",
+		    "run_time": 5,
+			"blink_time": "0.005",
+			"name": "stripes",
+			"direction": "backward",
+		}
+	},
+	{
+		"name" : "stripe bounce",
+		"type" : "stripes",
+		"data" : {
+			"color_set": ["green", "red", "white"],
+			"color_ordered": True,
+			"brightness": "0.5",
+		    "run_time": 5,
+			"blink_time": "0.002",
+			"name": "stripes",
+			"direction": "bounce",
+		}
+	},
+]

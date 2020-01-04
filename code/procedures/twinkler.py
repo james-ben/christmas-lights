@@ -85,3 +85,32 @@ class TwinkleLights():
 			self.strand.setPixelColor(self.strand.randIdx(), nextColor)
 
 		self.strand.showPixels()
+
+
+# preset procedures
+presets = [
+	{
+		"name" : "twinkle color",
+		"type" : "twinkle",
+		"data" : {
+			"color_set": ["red", "green", "yellow", "white"],
+			"color_ordered": False,
+			"brightness": ["0", ".5"],
+			"run_time": 30,
+		    "blink_time": ["0.01", ".5"],
+			"name": "twinkle",
+		}
+	},
+	{
+		"name" : "twinkle white",
+		"type" : "twinkle",
+		"data" : {
+			"color_set": ["white"],
+			"color_ordered": False,
+			"brightness": ["0", ".5"],
+			"run_time": 30,
+		    "blink_time": ["0.01", ".5"],
+			"name": "twinkle",
+		}
+	}
+]
