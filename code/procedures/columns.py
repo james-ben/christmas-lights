@@ -46,6 +46,9 @@ class ColumnLights:
 	def run(self, grid, params, stopFlag):
 		self.grid = grid
 		self.parseParams(params)
+		# set all to off
+		self.grid.setAllColor(colors.Off)
+		self.grid.showPixels()
 
 		# run
 		if self.run_time is not None:
@@ -93,3 +96,33 @@ class ColumnLights:
 			self.grid.setColumn(j-1, color)
 			time.sleep(twinkle.getTime(self.blink_time))
 			self.grid.setColumn(j, colors.Off)
+
+
+presets = [
+	{
+		"name" : "default columns",
+		"type" : "columns",
+		"data" : {
+			"name": "columns",
+			"color_set": ["green", "red", "white"],
+			"color_ordered": True,
+			"brightness": ["0.5", "0.5"],
+			"run_time": 10,
+			"blink_time": 0.02,
+			"direction": "bounce",
+		}
+	},
+	{
+		"name" : "blue columns",
+		"type" : "columns",
+		"data" : {
+			"name": "columns",
+			"color_set": ["blue"],
+			"color_ordered": True,
+			"brightness": ["0.5", "0.5"],
+			"run_time": 5,
+			"blink_time": 0.02,
+			"direction": "forward",
+		}
+	},
+]

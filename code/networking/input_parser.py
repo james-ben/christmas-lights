@@ -1,5 +1,9 @@
 import json
 
+from procedures import (twinkler, stripes,
+                        strobe, columns,
+                        blink)
+
 
 procedureChoices = [
 	"twinkle",
@@ -23,13 +27,39 @@ DEFAULT_ORDERED = True
 DEFAULT_DIRECTION = directionChoices[0]
 
 
+def getDefaultVal(proc, key):
+	if proc == procedureChoices[0]:
+		return twinkler.getDefaultValue(key)
+	elif proc == procedureChoices[1]:
+		return stripes.getDefaultValue(key)
+	elif proc == procedureChoices[2]:
+		return strobe.getDefaultValue(key)
+	# elif proc == procedureChoices[3]:
+	# 	return "Not yet implemented!"
+	elif proc == procedureChoices[4]:
+		return blink.getDefaultValue(key)
+	else:
+		if key == "brightness":
+			return DEFAULT_BRIGHTNESS
+		elif key == "run_time":
+			return DEFAULT_RUN_TIME
+		elif key == "blink_time":
+			return DEFAULT_BLINK_TIME
+		elif key == "color_ordered":
+			return DEFAULT_ORDERED
+		elif key == "direction":
+			return DEFAULT_DIRECTION
+		else:
+			return "Error, invalid key!"
+
+
 def validateProcedure(name):
-	if name in procedureChoices:
+	if name.lower() in procedureChoices:
 		return True
 	return False
 
 def validateDirection(name):
-	if name in directionChoices:
+	if name.lower() in directionChoices:
 		return True
 	return False
 
@@ -100,7 +130,7 @@ def handleDict(data):
 		if key == "name":
 			# validate the procedure name exists
 			if validateProcedure(val):
-				returnDict[key] = val
+				returnDict[key] = val.lower()
 			else:
 				return "Procedure name does not exist"
 
@@ -146,7 +176,11 @@ def handleDict(data):
 			if validateDirection(val):
 				returnDict[key] = val
 			else:
-				return "Invalid direction name"
+				# if empty string
+				if not val:
+					returnDict[key] = DEFAULT_DIRECTION
+				else:
+					return "Invalid direction name"
 
 		elif key == "num_runs":
 			if isinstance(val, int):
@@ -168,16 +202,19 @@ def handleDict(data):
 		return "Missing color set"
 
 	if not "color_ordered" in returnDict:
-		returnDict["color_ordered"] = DEFAULT_ORDERED
+		returnDict["color_ordered"] = getDefaultVal(returnDict["name"], "color_ordered")
 
 	if not "brightness" in returnDict:
-		returnDict["brightness"] = makeListOfTwo(DEFAULT_BRIGHTNESS, DEFAULT_BRIGHTNESS)
+		df = getDefaultVal(returnDict["name"], "brightness")
+		returnDict["brightness"] = makeListOfTwo(df, df)
 
 	if not "blink_time" in returnDict:
-		returnDict["blink_time"] = makeListOfTwo(DEFAULT_BLINK_TIME, DEFAULT_BLINK_TIME)
+		df = getDefaultVal(returnDict["name"], "blink_time")
+		returnDict["blink_time"] = makeListOfTwo(df, df)
 
 	if not "direction" in returnDict:
-		returnDict["direction"] = DEFAULT_DIRECTION
+		df = getDefaultVal(returnDict["name"], "direction")
+		returnDict["direction"] = df
 
 	# can be based off of time or number or runs, but not both
 	# time gets precedence, but could only have one

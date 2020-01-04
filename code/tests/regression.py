@@ -151,23 +151,12 @@ def columnTest():
 	aggregateRequest = []
 	sleepTime = 0
 
-	colData0 = {
-		"name": "columns",
-		"color_set": ["green", "red", "white"],
-		"color_ordered": True,
-		"brightness": ["0.5", "0.5"],
-		"run_time": 10,
-		"blink_time": 0.02,
-		"direction": "bounce",
-		# "num_runs": "5"
-	}
+	# default
+	colData0 = dict(columns.presets[0]["data"])
 	aggregateRequest.append(colData0)
 	sleepTime += colData0["run_time"]
 
-	colData1 = dict(colData0)
-	colData1["direction"] = "forward"
-	colData1["color_set"] = "blue"
-	colData1["run_time"] = 5
+	colData1 = dict(columns.presets[1]["data"])
 	aggregateRequest.append(colData1)
 	sleepTime += colData1["run_time"]
 

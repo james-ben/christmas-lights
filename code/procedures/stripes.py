@@ -124,3 +124,11 @@ presets = [
 		}
 	},
 ]
+
+def getDefaultValue(key):
+	"""Gets a default value for a given key. Returns None if key does not exist."""
+	d = presets[0]["data"]
+	if key in d.keys():
+		return d[key]
+	else:
+		return None
