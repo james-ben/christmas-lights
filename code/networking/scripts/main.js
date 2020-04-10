@@ -1,6 +1,4 @@
-// const server = 'http://192.168.0.114:5000';
-const server = 'http://192.168.0.102:5000';
-// const server = 'http://10.81.1.111:5000';
+const server = 'http://localhost:5000/'
 // const procedures = [];
 
 window.onload = () => {

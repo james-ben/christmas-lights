@@ -5,7 +5,7 @@ import time
 import threading
 from itertools import cycle
 from datetime import datetime
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, send_from_directory
 
 sys.path.append(os.path.abspath("../"))
 from procedures import (twinkler, stripes,
@@ -152,6 +152,11 @@ def index():
 		'time' : timeString
 	}
 	return render_template('index.html', **templateData)
+
+# https://stackoverflow.com/a/20648053/12940429
+@app.route('/scripts/<path:filename>')
+def send_js(filename):
+    return send_from_directory('scripts', filename)
 
 # fun
 @app.route('/hello/<name>')
