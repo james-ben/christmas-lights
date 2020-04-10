@@ -1,13 +1,8 @@
-// const server = 'http://192.168.0.114:5000';
-const server = 'http://192.168.0.102:5000';
-// const server = 'http://10.81.1.111:5000';
-// const procedures = [];
-
 window.onload = () => {
     createRowEl({}, [], '');
 }
 
-
+// Create an input tag for generating runTime
 function createRunTimeEl(id) {
     const el = document.createElement('input');
     el.type = 'text';
@@ -16,6 +11,7 @@ function createRunTimeEl(id) {
     return el;
 }
 
+// Create an input tag for generating the name according to a list of names
 function createNameEl(id, name) {
     const el = document.createElement('input');
     el.type = 'list';
@@ -26,6 +22,7 @@ function createNameEl(id, name) {
     return el;
 }
 
+// Create a container of inputs for adding colors according to a list of colors
 function createColorEl(colorSet) {
     const el = document.createElement('div');
     const color = document.createElement('input');
@@ -39,6 +36,7 @@ function createColorEl(colorSet) {
     return el;
 }
 
+// Create an input tag for generating the direction of the procedure
 function createDirectionEl() {
     const el = document.createElement('input');
     el.type = 'list';
@@ -48,6 +46,7 @@ function createDirectionEl() {
     return el;
 }
 
+// Create a container of inputs to designate the minimum and maximum values of a given name
 function createMinMaxEl(name) {
     const el = document.createElement('div');
     const min = document.createElement('input');
@@ -63,6 +62,7 @@ function createMinMaxEl(name) {
     return el;
 }
 
+// Create a contianer called a row that will create all the input lines
 function createRowEl(procedure, colorSet, name) {
     const proceduresElement = window['procedures'];
     const row = document.createElement('div');
@@ -77,6 +77,7 @@ function createRowEl(procedure, colorSet, name) {
     proceduresElement.appendChild(row);
 }
 
+// Create a list of values from the children of an element
 function getChildrenValues(el) {
     const values = [];
     Array.from(el.children).forEach(child => {
@@ -85,6 +86,7 @@ function getChildrenValues(el) {
     return values;
 }
 
+// Get the procedure that will be sent to the christmas tree lights
 function getProcedure(row) {
     const [ runTime, name, direction, colors, brightness, blinkTime] = Array.from(row.children);
     const colorSet = getChildrenValues(colors);
@@ -99,25 +101,9 @@ function getProcedure(row) {
         'direction': direction.value.toLowerCase(),
         'run_time': runTime.value,
     };
-
-}
-// Example POST method implementation:
-async function postData(url = '', data = {}) {
-    // Default options are marked with *
-    const response = await fetch(url, {
-        method: 'POST',
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-        'Content-Type': 'text/plain'
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *client
-        body: JSON.stringify(data)
-    });
-    return await response.json(); // parses JSON response into native JavaScript objects
 }
 
+// Get all the procedures to be sent to the christmas tree lights
 function getProcedures() {
     const procedures = [];
     const rows = window['procedures'].querySelectorAll('.row')
@@ -127,23 +113,14 @@ function getProcedures() {
     return procedures;
 }
 
+// run the procedures
 async function runCustomProcedures() {
     const procedures = getProcedures();
-    postData(`${server}/run`, procedures)
+    postProcedure('run', procedures)
     .then((procedures) => {
         console.log(procedures);
     })
     .catch((error) => {
         console.error(error);
     });
-}  
-
-function setProcedureName(buttonEl) {
-    const allButtons = window['custom_procedure'].querySelectorAll('#name button');
-    allButtons.forEach(button => {
-        button.dataValue = undefined;
-        button.classList.remove('selected');
-    });
-    buttonEl.dataValue = true;
-    buttonEl.classList.add('selected');
 }
