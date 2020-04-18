@@ -1,34 +1,76 @@
-'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var bulb = {
+  position: 'relative',
+  display: 'inline-block',
+  listStyle: 'none',
+  margin: 0,
+  padding: 0,
+  width: 'var(--var-lights-width)',
+  height: 'calc(var(--var-lights-width)*2)',
+  borderRadius: '50%',
+  animationFillMode: 'both',
+  animationIterationCount: 'infinite',
+  animationName: 'flash',
+  animationDelay: '0s'
+};
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var casing = {
+  display: 'block',
+  width: 'var(--var-lights-width)',
+  height: 'var(--var-lights-width)',
+  background: '#2a2a2a',
+  borderRadius: '3px'
+};
+var wire = {
+  display: 'block',
+  margin: 0,
+  marginTop: '-30px',
+  marginLeft: '7px',
+  width: 'calc(var(--var-lights-width)*5)',
+  height: 'calc(var(--var-lights-width))',
+  borderRadius: '50%',
+  borderBottom: '3px solid #2a2a2a'
+};
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+var primary = {
+  background: 'var(--var-color-primary-bright)',
+  boxShadow: 'var(--var-color-primary-bright) 0px 0px 12px 5px'
+};
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+var secondaryBright = {
+  background: 'var(--var-color-secondary-bright)',
+  boxShadow: 'var(--var-color-secondary-bright) 0px 0px 12px 5px'
+};
 
-var Bulb = function (_React$Component) {
-  _inherits(Bulb, _React$Component);
+var secondary = {
+  background: 'var(--var-color-secondary)',
+  boxShadow: 'var(--var-color-secondary) 0px 0px 12px 5px'
+};
 
-  function Bulb(props) {
-    _classCallCheck(this, Bulb);
+var accent = {
+  background: 'var(--var-color-accent)',
+  boxShadow: 'var(--var-color-accent) 0px 0px 12px 5px'
+};
 
-    var _this = _possibleConstructorReturn(this, (Bulb.__proto__ || Object.getPrototypeOf(Bulb)).call(this, props));
+function generateStyleList(index) {
+  var color = primary;
+  if (index % 2 === 0) color = secondary;
+  if (index % 3 === 0) color = secondaryBright;
+  if (index % 4 === 0) color = accent;
+  var speed = { animationDuration: (Math.random() + 1).toFixed(2) + 's' };
+  var delay = { animationDelay: Math.random().toFixed(2) + 's' };
+  return Object.assign({}, bulb, color, speed, delay);
+}
 
-    _this.state = { liked: false };
-    return _this;
-  }
+function Bulb(_ref) {
+  var index = _ref.index;
 
-  _createClass(Bulb, [{
-    key: 'render',
-    value: function render() {
-      return React.createElement('li', null);
-    }
-  }]);
-
-  return Bulb;
-}(React.Component);
-
-var domContainer = document.querySelector('li');
-ReactDOM.render(React.createElement(Bulb), domContainer);
+  var bulbStyleList = generateStyleList(index);
+  return React.createElement(
+    'span',
+    null,
+    React.createElement('div', { style: casing }),
+    React.createElement('li', { style: bulbStyleList }),
+    React.createElement('div', { style: wire })
+  );
+}

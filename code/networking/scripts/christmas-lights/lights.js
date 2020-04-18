@@ -1,42 +1,26 @@
-'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var lights = {
+  overflow: 'hidden',
+  position: 'fixed',
+  zIndex: 1,
+  margin: '-13px 0 0 -10px',
+  padding: 0,
+  display: 'flex',
+  flexFlow: 'row',
+  justifyContent: 'space-between',
+  width: '100%',
+  height: '7%',
+  background: '#333'
+};
+function Lights() {
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+  return React.createElement(
+    'ul',
+    { style: lights },
+    Array(30).fill(1).map(function (x, i) {
+      return React.createElement(Bulb, { index: i });
+    })
+  );
+}
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var numOfBulbs = 10;
-
-var Lights = function (_React$Component) {
-  _inherits(Lights, _React$Component);
-
-  function Lights(props) {
-    _classCallCheck(this, Lights);
-
-    var _this = _possibleConstructorReturn(this, (Lights.__proto__ || Object.getPrototypeOf(Lights)).call(this, props));
-
-    _this.state = { liked: false };
-    return _this;
-  }
-
-  _createClass(Lights, [{
-    key: 'render',
-    value: function render() {
-      return React.createElement(
-        'ul',
-        { id: 'lights' },
-        Array(10).fill(1).map(function () {
-          return React.createElement(Bulb, null);
-        })
-      );
-    }
-  }]);
-
-  return Lights;
-}(React.Component);
-
-var domContainer = document.querySelector('#christmas-lights');
-ReactDOM.render(React.createElement(Lights), domContainer);
+ReactDOM.render(React.createElement(Lights, null), document.getElementById('christmas-lights'));
