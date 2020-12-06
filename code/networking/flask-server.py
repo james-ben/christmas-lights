@@ -74,12 +74,15 @@ class TreeServer(object):
 		del self.grid
 
 	def runBackground(self):
+		nextParam = None
 		while not self.completed:
 
 			# spin lock to avoid race conditions
 			while self.backLock:
 				pass
 
+			# keep history
+			lastParam = nextParam
 			# get the next procedure to run
 			nextParam = next(self.procCycle)
 
@@ -101,6 +104,10 @@ class TreeServer(object):
 				continue
 
 			# print("Running procedure: {}".format(nextParam["name"]))
+
+			# no fading on repeats - only supported by twinkle right now
+			if (lastParam is not None) and (lastParam["name"] == nextParam["name"]):
+				nextParam["fade"] = True
 
 			# start up the procedure
 			targetFunction = self.functionMap[nextParam["name"]]
