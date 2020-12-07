@@ -1,7 +1,10 @@
+import os
+import sys
 import json
 import time
 from urllib import request
 
+sys.path.append(os.path.abspath("../"))
 from procedures import (twinkler, strobe,
                         stripes, columns,
                         blink)

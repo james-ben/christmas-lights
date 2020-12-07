@@ -10,7 +10,7 @@ from flask import Flask, request, render_template, send_from_directory
 sys.path.append(os.path.abspath("../"))
 from procedures import (twinkler, stripes,
                         strobe, columns,
-                        blink)
+                        blink, crazy)
 from networking import input_parser
 from light_utils import colors
 
@@ -47,6 +47,7 @@ class TreeServer(object):
 		self.strobe = strobe.StrobeLights()
 		self.column = columns.ColumnLights()
 		self.blinker = blink.BlinkLights()
+		self.crazy = crazy.CrazyOldColumnLights()
 
 		self.functionMap = {
 			"twinkle": self.twinkler.run,
@@ -54,6 +55,7 @@ class TreeServer(object):
 			"strobe": self.strobe.run,
 			"columns": self.column.run,
 			"blink": self.blinker.run,
+			"crazy": self.crazy.run,
 		}
 
 		# init the state
