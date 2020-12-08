@@ -102,6 +102,7 @@ class TreeServer(object):
 			# special name to turn it all off
 			if nextParam["name"].lower() == "off":
 				self.grid.setAllColor(colors.Off)
+				self.grid.showPixels()
 				# short circuit
 				continue
 

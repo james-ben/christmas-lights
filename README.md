@@ -26,6 +26,11 @@ http://192.168.0.1:5000/
 ```
 
 
+## Stringing the Lights
+
+The code assumes that the lights are strung from the bottom of the tree to the top, in a circular fashion around the tree.  The definitions for rows are found in the file `grid.py`, in the variable named `pts`.  The values in this array define the beginning and ending indices for each row.  To change how many rows there are, just change the definition here of this list.
+
+
 ## Other
 
 [Similar project](https://learn.adafruit.com/micropython-smart-holiday-lights) (that we didn't find until later)
