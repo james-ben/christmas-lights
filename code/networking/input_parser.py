@@ -2,7 +2,7 @@ import json
 
 from procedures import (twinkler, stripes,
                         strobe, columns,
-                        blink)
+                        blink, crazy)
 
 
 procedureChoices = [
@@ -10,7 +10,9 @@ procedureChoices = [
 	"stripes",
 	"strobe",
 	"columns",
+	"crazy",
 	"blink",
+	"off",
 ]
 
 directionChoices = [
@@ -133,6 +135,9 @@ def handleDict(data):
 				returnDict[key] = val.lower()
 			else:
 				return "Procedure name does not exist"
+			# early exit for the "off" procedure
+			if val.lower() == "off":
+				return returnDict
 
 		elif key == "color_set":
 			# single color or list of colors (strings)

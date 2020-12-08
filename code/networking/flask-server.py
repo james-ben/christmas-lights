@@ -5,12 +5,12 @@ import time
 import threading
 from itertools import cycle
 from datetime import datetime
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, send_from_directory
 
 sys.path.append(os.path.abspath("../"))
 from procedures import (twinkler, stripes,
                         strobe, columns,
-                        blink)
+                        blink, crazy)
 from networking import input_parser
 from light_utils import colors
 
@@ -47,6 +47,7 @@ class TreeServer(object):
 		self.strobe = strobe.StrobeLights()
 		self.column = columns.ColumnLights()
 		self.blinker = blink.BlinkLights()
+		self.crazy = crazy.CrazyOldColumnLights()
 
 		self.functionMap = {
 			"twinkle": self.twinkler.run,
@@ -54,6 +55,7 @@ class TreeServer(object):
 			"strobe": self.strobe.run,
 			"columns": self.column.run,
 			"blink": self.blinker.run,
+			"crazy": self.crazy.run,
 		}
 
 		# init the state
@@ -74,12 +76,15 @@ class TreeServer(object):
 		del self.grid
 
 	def runBackground(self):
+		nextParam = None
 		while not self.completed:
 
 			# spin lock to avoid race conditions
 			while self.backLock:
 				pass
 
+			# keep history
+			lastParam = nextParam
 			# get the next procedure to run
 			nextParam = next(self.procCycle)
 
@@ -97,10 +102,15 @@ class TreeServer(object):
 			# special name to turn it all off
 			if nextParam["name"].lower() == "off":
 				self.grid.setAllColor(colors.Off)
+				self.grid.showPixels()
 				# short circuit
 				continue
 
 			# print("Running procedure: {}".format(nextParam["name"]))
+
+			# no fading on repeats - only supported by twinkle right now
+			if (lastParam is not None) and (lastParam["name"] == nextParam["name"]):
+				nextParam["fade"] = True
 
 			# start up the procedure
 			targetFunction = self.functionMap[nextParam["name"]]
@@ -152,6 +162,11 @@ def index():
 		'time' : timeString
 	}
 	return render_template('index.html', **templateData)
+
+# https://stackoverflow.com/a/20648053/12940429
+@app.route('/scripts/<path:filename>')
+def send_js(filename):
+    return send_from_directory('scripts', filename)
 
 # fun
 @app.route('/hello/<name>')

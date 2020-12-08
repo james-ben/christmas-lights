@@ -13,9 +13,9 @@ DARK_GREEN = (2, 50, 0)
 
 
 class FakeTree(object):
-	def __init__(self):
-		self.height = 350
-		self.width = 700
+	def __init__(self, rows):
+		self.height = 700
+		self.width = 350
 		self.size = (self.width, self.height)
 
 		self.screen = None
@@ -26,13 +26,13 @@ class FakeTree(object):
 		self.light_height = 10
 		self.pixels = []
 
-		# draw the rows of lights
-		self.row0_rects = np.linspace(start=10, stop=self.width-10, num=37, dtype="int")
-		# self.row1_rects = np.linspace(start=50, stop=self.width-50, num=63-37, dtype="int")
-		self.row1_rects = np.linspace(start=self.width-50, stop=50, num=63-37, dtype="int")
-		self.row2_rects = np.linspace(start=100, stop=self.width-100, num=83-63, dtype="int")
-		# self.row3_rects = np.linspace(start=120, stop=self.width-120, num=100-83, dtype="int")
-		self.row3_rects = np.linspace(start=self.width-120, stop=120, num=100-83, dtype="int")
+		# procedural rows - determine coords
+		self.row_rects = []
+		pixelSep = 10
+		for begin, end in rows:
+			size = end - begin
+			buf = (self.width - (size * pixelSep)) / 2
+			self.row_rects.append(np.linspace(start=buf, stop=self.width-buf, num=size, dtype="int"))
 
 		# run background loop
 		self.running = True
@@ -61,10 +61,11 @@ class FakeTree(object):
 		self.lights = pygame.Surface(self.size)
 		self.lights.fill(DARK_GREEN)
 
-		self.initRow(self.row0_rects, self.height - 80)
-		self.initRow(self.row1_rects, self.height - 130)
-		self.initRow(self.row2_rects, self.height - 180)
-		self.initRow(self.row3_rects, self.height - 230)
+		# draw the rows
+		lineHeights = np.linspace(start=self.height-50, stop=50, num=len(self.row_rects), dtype="int")
+		for row, height in zip(self.row_rects, lineHeights):
+			self.initRow(row, height)
+		# make it display
 		pygame.display.update()
 
 		print("Beginning the running loop...")
