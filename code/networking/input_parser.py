@@ -2,7 +2,7 @@ import json
 
 from procedures import (twinkler, stripes,
                         strobe, columns,
-                        blink)
+                        blink, crazy)
 
 
 procedureChoices = [
@@ -10,6 +10,7 @@ procedureChoices = [
 	"stripes",
 	"strobe",
 	"columns",
+	"crazy",
 	"blink",
 	"off",
 ]
