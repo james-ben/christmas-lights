@@ -17,8 +17,8 @@ function Lights() {
   return React.createElement(
     'ul',
     { style: lights },
-    Array(30).fill(1).map(function (x, i) {
-      return React.createElement(Bulb, { index: i });
+    Array(50).fill(1).map(function (x, i) {
+      return React.createElement(Bulb, { key: i, index: i });
     })
   );
 }

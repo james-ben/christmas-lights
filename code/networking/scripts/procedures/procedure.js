@@ -11,7 +11,16 @@ var input = {
 };
 
 var runTime = {
-    maxWidth: '75px'
+    maxWidth: '75px',
+    fontSize: '20px',
+    border: 'none',
+    padding: '3px 5px',
+    paddingRight: '2px',
+    marginLeft: '5px',
+    marginBottom: '5px',
+    fontWeight: 100,
+    flex: 1,
+    width: '100%'
 };
 
 var direction = {
@@ -55,37 +64,47 @@ var colorSetLabel = {
     //     opacity: 1;
     // }
 
-};var colors = ['Red', 'Green', 'Blue', 'Yellow', 'White', 'Off'];
+};
+
+var colors = ['Red', 'Green', 'Blue', 'Yellow', 'White', 'Off'];
 var names = ['Twinkle', 'Stripes', 'Strobe', 'Blink', 'Columns'];
 var directions = ['Forward', 'Backward', 'Bounce'];
 
-function getInputStyles(type) {
-    return Object.assign({}, input, type);
-}
 
-function Procedure() {
+
+// const availableProcedures = () => await runGetProcedures()
+
+function Procedure({procedure, setProcedure}) {
+    const { id } = procedure;
+    const [name, setName] = useState(procedure.name);
+
+    function changeProcedure({ currentTarget }) {
+        const newName = currentTarget.value.toLowerCase();
+        const newProcedure = {
+            blink_time: [],
+            brightness: [0, 1],
+            color_set: ["white"],
+            direction: "",
+            id,
+            name: newName,
+            run_time: ""
+         };
+        setName(newName);
+        setProcedure(id, newProcedure);
+    }
+    
     return React.createElement(
         'div',
         { id: 'procedure', style: row },
-        React.createElement('input', { type: 'text', placeholder: 'Time(s)', style: getInputStyles(runTime) }),
-        React.createElement('input', { type: 'list', placeholder: 'Name', style: getInputStyles(), list: names }),
-        React.createElement('input', { type: 'list', placeholder: 'Direction', style: getInputStyles(direction), list: directions }),
+        React.createElement('input', { type: 'text', placeholder: 'Time(s)', style: runTime }),
         React.createElement(
-            'div',
-            { style: colorSet },
-            React.createElement('input', { type: 'list', placeholder: 'Color', style: getInputStyles(), list: colors })
-        ),
-        React.createElement(
-            'div',
-            null,
-            React.createElement('input', { type: 'text', placeholder: 'Min Brightness', style: getInputStyles() }),
-            React.createElement('input', { type: 'text', placeholder: 'Max Brightness', style: getInputStyles() })
-        ),
-        React.createElement(
-            'div',
-            null,
-            React.createElement('input', { type: 'text', placeholder: 'Min Blink Time', style: getInputStyles() }),
-            React.createElement('input', { type: 'text', placeholder: 'Max Blink Time', style: getInputStyles() })
+            'select',
+            { id: 'names', style: input, onChange: changeProcedure, value: name },
+            React.createElement('option', { value: 'twinkle' }, 'Twinkle'),
+            React.createElement('option', { value: 'stripes' }, 'Stripes'),
+            React.createElement('option', { value: 'strobe'}, 'Strobe'),
+            React.createElement('option', { value: 'blink' }, 'Blink'),
+            React.createElement('option', { value: 'crazy' }, 'Crazy')
         )
     );
 }

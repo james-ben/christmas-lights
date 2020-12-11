@@ -1,25 +1,46 @@
 <style>
-    :root {
+    html {
         --var-color-text-default: #3C3A51;
         --var-color-text-default: #333;
         --var-color-text-dark: black;
         --var-color-text-light: #f0f0f0;
         --var-lights-width: 10px;
 /** bright **/
-        --var-color-primary: #288C84;
+        /* --var-color-primary: #288C84;
         --var-color-primary-bright: #37C394;
         --var-color-secondary: #b6096b;
         --var-color-secondary-bright: #FDFFF6;
-        --var-color-accent: #FF0548; 
+        --var-color-accent: #FF0548;  */
 /** dull **/
         /* --var-color-primary: #1E402F;
         --var-color-primary-bright: #4F7D58;
         --var-color-secondary: #64777D;
         --var-color-secondary-bright: #D7D8DA;
         --var-color-accent: #BB2528; */
+/** christmas sweater https://www.schemecolor.com/kids-christmas-sweater-colors.php **/
+        /* --var-color-primary: #366640;
+        --var-color-primary-bright: #458352;
+        --var-color-secondary: #9d7e59;
+        --var-color-secondary-bright: #d9d2ca;
+        --var-color-accent: #c30b0f; */
+/** old christmas https://www.schemecolor.com/old-christmas.php **/
+        /* --var-color-primary: #67A580;
+        --var-color-primary-bright: #B1D5A9;
+        --var-color-secondary: #611928;
+        --var-color-secondary-bright: #883740;
+        --var-color-accent: #F3D6A9; */
+/** frost of winter https://www.schemecolor.com/frost-of-winter.php **/
+        --var-color-primary: #41809c;
+        --var-color-primary-bright: #71a2b8;
+        --var-color-secondary: #c3cdd7;
+        --var-color-secondary-bright: #e4e5e8;
+        --var-color-accent: #c59a5b;
     }
     body {
         background: var(--var-color-text-default);
+    }
+    #panel {
+        width: 100%;
     }
     .content {
         display: flex;
@@ -27,58 +48,17 @@
         width: 100%;
         justify-content: space-around;
     }
-    .panel {
-        margin-top: 40px;
-        background-color: var(--var-color-text-light);;
-        padding: 10px;
-        margin: 10px;
-        border-radius: 2px;
-    }
-    .panel:nth-of-type(2) {
-        flex-grow: 3;
-    }
     h1, h2, h3, h4, h5, h6, p, label, div, span, a, button {
         color: var(--var-color-text-default);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    button {
-        padding: 10px;
-        border-radius: 2px;
-        box-shadow: none;
-        font-size: .8rem;
-        border: none;
-        margin: 10px;
-        cursor: pointer;
-        background: var(--var-color-primary);
-        color: var(--var-color-text-light);
-        height: 50px;
-        width: 100px;
-        opacity: .4;
-        cursor: pointer;
-    }
-    button:hover {
-        opacity: .9;
-    }
-    button[disabled]:hover {
-        opacity: .4;
-        cursor: auto;
-    }
-    button.submit {
-        opacity: 1;
-        cursor: pointer;
-    }
+    
     /* .procedure-names button {
         background: var(--var-color-accent);
     }
     .procedure-names button.selected {
         opacity: 1;
     } */
-
-    .header {
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-    }
     @keyframes flash {
         0%, 100% { box-shadow: inherit 0px 0px 12px 5px; }
         50% { box-shadow: transparent 0px 0px 12px 5px; }
@@ -87,22 +67,10 @@
 </style>
 
 <html>
-<head>
-    <link rel="stylesheet" href="/static/style.css" />
-</head>
 <body>
 <div id="christmas-lights"></div>
-<h1>Epic Christmas Lights</h1>
 <div class="content">
-    <div class="panel">
-        <div class="header">
-            <h2>Custom Christmas Lights</h2>
-            <button class="submit" onclick="runCustomProcedures()">Submit</button>
-        </div>
-        <div>
-            <div id="procedures-container"></div>
-        </div>
-    </div>
+    <div id="panel"></div>
 </div>
     <script type="text/javascript" src="../scripts/server.js"></script>
     <script type="text/javascript" src="../scripts/main.js"></script>
@@ -114,5 +82,6 @@
     <script src="../scripts/christmas-lights/lights.js"></script>
     <script src="../scripts/procedures/procedure.js"></script>
     <script src="../scripts/procedures/procedureList.js"></script>
+    <script src="../scripts/panel/panel.js"></script>
 </body>
 </html>
