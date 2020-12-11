@@ -61,14 +61,14 @@ class TreeServer(object):
 		self.procCycle = cycle(self.procList)
 
 		# background thread that runs all the things
-		self.backLock = False
+		self.backLock = threading.Event()
 		self.completed = False
 		self.backgroundThread = threading.Thread(target=self.runBackground)
 		self.backgroundThread.start()
 
 	def __del__(self):
 		"""Stop all threads and destruct the strand/grid."""
-		self.backLock = True
+		self.backLock.set()
 		self.completed = True
 		self.backgroundThread.join()
 		del self.grid
@@ -77,9 +77,9 @@ class TreeServer(object):
 		nextParam = None
 		while not self.completed:
 
-			# spin lock to avoid race conditions
-			while self.backLock:
-				pass
+			# wait until event is set (means params are done changing)
+			if not self.backLock.is_set():
+				self.backLock.wait()
 
 			# keep history
 			lastParam = nextParam
@@ -139,10 +139,11 @@ class TreeServer(object):
 		This will iterate through each item in the list indefinitely, doing one at a time.
 		"""
 
-		self.backLock = True
+		# event acts as semaphore
+		self.backLock.clear()
 		self.procList = params
 		self.procCycle = cycle(params)
-		self.backLock = False
+		self.backLock.set()
 
 	def timerCallback(self, timeout):
 		# print("Timer sleeping for {} seconds".format(timeout))
