@@ -64,6 +64,7 @@ class TreeServer(object):
 
 		# background thread that runs all the things
 		self.backLock = threading.Event()
+		self.procFlag = threading.Event()
 		self.completed = False
 		self.backgroundThread = threading.Thread(target=self.runBackground)
 		self.backgroundThread.start()
@@ -113,27 +114,32 @@ class TreeServer(object):
 				nextParam["fade"] = True
 
 			# start up the procedure
+			self.procFlag.clear()
 			targetFunction = self.functionMap[nextParam["name"]]
-			self.processHandle = threading.Thread(target=targetFunction, args=(
-				self.strand, nextParam, lambda: self.stopFlag))
+			# function returns a generator
+			gen = targetFunction(self.strand, nextParam, self.procFlag)
 
-			# timer to finish if needed
-			if "run_time" in nextParam:
-				self.timerHandle = threading.Thread(target=self.timerCallback,
-				                                    args=(nextParam["run_time"],))
+			# how long to run
+			useTime = nextParam["run_time"] is not None
+			if useTime:
+				endTime = time.time() + nextParam["run_time"]
 
-			# start all the things
-			if self.processHandle:
-				self.stopFlag = False
-				self.processHandle.start()
+			while not self.procFlag.is_set():
+				# should we stop?
+				if useTime and (time.time() > endTime):
+					break
+				# do the next operation
+				nextIdx, nextColor, nextTime, show = next(gen)
+				if nextIdx == "rand":
+					nextIdx = self.strand.randIdx()
+				self.strand.setPixelColor(nextIdx, nextColor)
+				if show:
+					self.strand.showPixels()
+				if nextTime > 0:
+					time.sleep(nextTime)
 
-			if self.timerHandle:
-				self.timerInterrupt = False
-				self.timerHandle.start()
-
-			if self.processHandle:
-				# this will enforce waiting correctly
-				self.processHandle.join()
+			# if break from time,
+			self.procFlag.set()
 
 	def runProcedure(self, params):
 		"""Params is a list of dictionaries with all of the required keys.
@@ -147,11 +153,6 @@ class TreeServer(object):
 		self.procList = params
 		self.procCycle = cycle(params)
 		self.backLock.set()
-
-	def timerCallback(self, timeout):
-		# print("Timer sleeping for {} seconds".format(timeout))
-		time.sleep(timeout)
-		self.stopFlag = True
 
 
 # home page

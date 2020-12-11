@@ -19,7 +19,18 @@ class Grid(interface.strand):
 		# https://stackoverflow.com/a/5434936/12940429
 		self.rows = [(next(gen[0]), next(gen[1])) for _ in range(len(pts)-1)]
 
-		self.oldCols = [
+		# init the columns procedurally
+		self.num_cols = 6
+		self.cols = [[] for _ in range(self.num_cols)]
+		for r in self.rows:
+			# divide the numbers in each row up into n mostly equal parts
+			for i, c in enumerate(np.array_split([x for x in range(*r)], self.num_cols)):
+				self.cols[i].extend(c)
+
+		self.num_rows = len(self.rows)
+
+		# columns from last year actually look pretty good
+		self.crazyCols = [
 			[0, pt1 - 1, pt1, self.num_pixels - 1],
 			[1, pt1 - 2, pt1, self.num_pixels - 1],
 			[3, pt1 - 3, pt1 + 1, self.num_pixels - 2],
@@ -44,16 +55,6 @@ class Grid(interface.strand):
 			[36, pt1 - 26, pt1 + 19, self.num_pixels - 17],
 		]
 
-		# init the columns procedurally
-		self.num_cols = 6
-		self.cols = [[] for _ in range(self.num_cols)]
-		for r in self.rows:
-			# divide the numbers in each row up into n mostly equal parts
-			for i, c in enumerate(np.array_split([x for x in range(*r)], self.num_cols)):
-				self.cols[i].extend(c)
-
-		self.num_rows = len(self.rows)
-
 	def __del__(self):
 		super().__del__()
 
@@ -68,6 +69,6 @@ class Grid(interface.strand):
 		self.pixels.show()
 
 	def setOldColumn(self, idx, color):
-		for i in self.oldCols[idx]:
+		for i in self.crazyCols[idx]:
 			self.setPixelColor(i, color)
 		self.pixels.show()
