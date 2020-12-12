@@ -16,14 +16,6 @@ class ColumnLights(Procedure):
 	# def parseParams(self, params):
 	# 	"""Read all the data from the input dictionary."""
 
-	def nextColor(self):
-		if self.color_ordered:
-			nextColor = next(self.colorCycle)
-		else:
-			nextColor = choice(self.color_set)
-		# get intensity
-		return colors.colorBrightness(nextColor, self.brightness)
-
 	def initStrand(self, grid):
 		# optionally wipe
 		if not self.fade:

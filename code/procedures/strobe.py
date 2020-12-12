@@ -1,95 +1,126 @@
 import time
 from random import choice
-from itertools import cycle
+from itertools import cycle, tee
 
 from light_utils import colors
 from light_utils import twinkle
+from procedures.procedure import Procedure
 
 
-class StrobeLights:
+class StrobeLights(Procedure):
 	def __init__(self):
-		self.timerInterrupt = False
-		self.color_set = None
-		self.color_ordered = None
-		self.brightness = None
-		self.blink_time = None
-		self.direction = None
-		self.run_time = None
-		self.num_runs = None
-		self.grid = None
-		self.colorCycle = None
+		super().__init__()
+		self.forwardList = None
+		self.backwardList = None
+		self.bounceList = None
 
-	def parseParams(self, params):
-		"""Read all the data from the input dictionary."""
-		self.color_set = colors.parseColorSet(params["color_set"])
-		self.color_ordered = params["color_ordered"]
-		self.brightness = params["brightness"]
-		self.blink_time = params["blink_time"]
-		self.direction = params["direction"]
-		self.colorCycle = cycle(self.color_set)
+	# def parseParams(self, params):
+	# 	"""Read all the data from the input dictionary."""
 
-		if "run_time" in params:
-			self.run_time = params["run_time"]
-			self.num_runs = None
-		else:
-			self.run_time = None
-			self.num_runs = params["num_runs"]
+	def initStrand(self, grid):
+		# optionally wipe
+		if not self.fade:
+			grid.setAllColor(colors.Off)
+			grid.showPixels()
 
-	def nextColor(self):
-		if self.color_ordered:
-			nextColor = next(self.colorCycle)
-		else:
-			nextColor = choice(self.color_set)
-		# get intensity
-		return colors.colorBrightness(nextColor, self.brightness)
+		# set up lists
+		if self.forwardList is None:
+			# only need to do it once
+			self.forwardList = [i for i in range(grid.num_rows)]
+			self.backwardList = list(reversed(self.forwardList))
+			self.bounceList = self.forwardList[:-1] + self.backwardList[:-1]
 
-	def run(self, grid, params, stopFlag):
-		self.grid = grid
-		self.parseParams(params)
+	def iteration(self, stopEvent):
+		"""A generator which will return the next commands to do.
 
-		# run
-		if self.run_time is not None:
-			while not stopFlag():
-				self.iteration(self.nextColor())
-		else:
-			for _ in range(self.num_runs):
-				self.iteration(self.nextColor())
-				if stopFlag():
-					break
+		Returns a tuple (idx, color, time, show)
+		where idx is the index of a pixel (could by "rand"),
+		color is a RGB tuple, already scaled by brightness
+		time is how long to sleep before next update
+		and show is boolean whether or not to flush updates to strand
+		"""
 
-	def iteration(self, nextColor):
 		# direction
 		if self.direction == "forward":
-			# up
-			self.strobeUp(nextColor)
+			rowIter = cycle(self.forwardList)
+			# divisor = 2
 		elif self.direction == "backward":
-			# down
-			self.strobeDown(nextColor)
+			rowIter = cycle(self.backwardList)
+			# divisor = 2
 		elif self.direction == "bounce":
-			# bounce
-			self.strobeBounce(nextColor)
+			rowIter = cycle(self.bounceList)
+			# divisor = 3
 
-	def strobeUp(self, color):
-		for i in range(self.grid.num_rows):
-			self.grid.setRow(i, color)
-			time.sleep(twinkle.getTime(self.blink_time))
-			self.grid.setRow(i, colors.Off)
+		# colors
+		if self.color_ordered:
+			colorCycle = cycle(self.color_set)
+			colorFunc = next
+		else:
+			colorCycle = self.color_set
+			colorFunc = choice
 
-	def strobeDown(self, color):
-		for i in range(self.grid.num_rows-1, -1, -1):
-			self.grid.setRow(i, color)
-			time.sleep(twinkle.getTime(self.blink_time))
-			self.grid.setRow(i, colors.Off)
+		# counters
+		# cur_runs = 0
+		iterCount = 0
 
-	def strobeBounce(self, color):
-		for i in range(self.grid.num_rows):
-			self.grid.setRow(i, color)
-			time.sleep(twinkle.getTime(self.blink_time))
-			self.grid.setRow(i, colors.Off)
-		for j in range(self.grid.num_rows-2, 0, -1):
-			self.grid.setRow(j, color)
-			time.sleep(twinkle.getTime(self.blink_time))
-			self.grid.setRow(j, colors.Off)
+		# iterators
+		i1, i2 = tee(rowIter)
+		# next(i2)
+
+		# set up complete, begin yielding instructions
+		while not stopEvent.is_set():
+			# how much time to sleep next
+			if (iterCount % 2) == 0:
+				nextTime = twinkle.getTime(self.blink_time)
+				showTrue = True
+				# color pick
+				nextColor = colorFunc(colorCycle)
+				nextColor = colors.colorBrightness(nextColor, self.brightness)
+				# row pick
+				nextRow = next(i1)
+			else:
+				nextTime = 0
+				showTrue = False
+				nextColor = colors.Off
+				# row stays the same here
+
+			# format row string
+			nextIdx = "r{}".format(nextRow)
+
+			# next instruction
+			yield (nextIdx, nextColor, nextTime, showTrue)
+
+			# update counters
+			iterCount += 1
+
+			# doing based on runs, not time
+			if (self.num_runs is not None) and ((iterCount // 2) == self.num_runs):
+				stopEvent.set()
+
+
+	def run(self, grid, params, stopEvent):
+		"""Run this procedure with the given parameters until stopEvent is set.
+
+		stopEvent is a threading Event.
+		Will call parseParams(), and initStrand() if fade is not true.
+		Returns a generator to tell what light to change next.
+		"""
+		self.parseParams(params)
+		self.initStrand(grid)
+
+		# return a generator
+		return self.iteration(stopEvent)
+
+	# def strobeBounce(self, color):
+	# 	for i in range(self.grid.num_rows):
+	# 		self.grid.setRow(i, color)
+	# 		time.sleep(twinkle.getTime(self.blink_time))
+	# 		self.grid.setRow(i, colors.Off)
+	# 	for j in range(self.grid.num_rows-2, 0, -1):
+	# 		self.grid.setRow(j, color)
+	# 		time.sleep(twinkle.getTime(self.blink_time))
+	# 		self.grid.setRow(j, colors.Off)
+
 
 
 # preset procedures that the client can request

@@ -10,7 +10,7 @@ from flask import Flask, request, render_template, send_from_directory
 sys.path.append(os.path.abspath("../"))
 from procedures import (twinkler, stripes,
                         strobe, columns,
-                        blink, crazy)
+                        blink)
 from networking import input_parser
 from light_utils import colors
 
@@ -31,7 +31,6 @@ ts = None
 
 class TreeServer(object):
 	def __init__(self):
-		self.processHandle = None
 		self.grid = grid.Grid()
 		# alias
 		self.strand = self.grid
@@ -39,7 +38,6 @@ class TreeServer(object):
 		# interrupt flags
 		self.stopFlag = False
 		self.timerInterrupt = False
-		self.timerHandle = None
 
 		# procedure objects
 		self.twinkler = twinkler.TwinkleLights()
@@ -47,7 +45,6 @@ class TreeServer(object):
 		self.strobe = strobe.StrobeLights()
 		self.column = columns.ColumnLights()
 		self.blinker = blink.BlinkLights()
-		self.crazy = crazy.CrazyOldColumnLights()
 
 		self.functionMap = {
 			"twinkle": self.twinkler.run,
@@ -55,7 +52,6 @@ class TreeServer(object):
 			"strobe": self.strobe.run,
 			"columns": self.column.run,
 			"blink": self.blinker.run,
-			"crazy": self.crazy.run,
 		}
 
 		# init the state
@@ -88,17 +84,6 @@ class TreeServer(object):
 			lastParam = nextParam
 			# get the next procedure to run
 			nextParam = next(self.procCycle)
-
-			# wait for old job to finish
-			if self.timerHandle is not None:
-				self.timerInterrupt = True
-				# this could take a while TODO: make better
-				self.timerHandle.join()
-				self.timerHandle = None
-			if self.processHandle is not None:
-				self.stopFlag = True
-				self.processHandle.join()
-				self.processHandle = None
 
 			# special name to turn it all off
 			if nextParam["name"].lower() == "off":
@@ -176,6 +161,8 @@ class TreeServer(object):
 		self.procList = params
 		self.procCycle = cycle(params)
 		self.backLock.set()
+		# pre-empt the procedure
+		self.procFlag.set()
 
 
 # home page
