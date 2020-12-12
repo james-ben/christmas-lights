@@ -10,7 +10,7 @@ var input = {
     width: '100%'
 };
 
-var runTime = {
+var runTimeStyles = {
     maxWidth: '75px',
     fontSize: '20px',
     border: 'none',
@@ -77,6 +77,7 @@ var directions = ['Forward', 'Backward', 'Bounce'];
 function Procedure({procedure, setProcedure}) {
     const { id } = procedure;
     const [name, setName] = useState(procedure.name);
+    const [runTime, setRunTime] = useState(procedure.run_time);
 
     function changeProcedure({ currentTarget }) {
         const newName = currentTarget.value.toLowerCase();
@@ -87,16 +88,21 @@ function Procedure({procedure, setProcedure}) {
             direction: "",
             id,
             name: newName,
-            run_time: ""
+            run_time: runTime
          };
         setName(newName);
         setProcedure(id, newProcedure);
+    }
+    function changeRunTime({ currentTarget }) {
+        setRunTime(currentTarget.value);
+        procedure.run_time = currentTarget.value;
+        setProcedure(id, procedure);
     }
     
     return React.createElement(
         'div',
         { id: 'procedure', style: row },
-        React.createElement('input', { type: 'text', placeholder: 'Time(s)', style: runTime }),
+        React.createElement('input', { type: 'text', placeholder: 'Seconds', style: runTimeStyles, value: runTime, onChange: changeRunTime }),
         React.createElement(
             'select',
             { id: 'names', style: input, onChange: changeProcedure, value: name },
