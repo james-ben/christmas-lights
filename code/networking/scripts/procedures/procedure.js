@@ -1,4 +1,4 @@
-var inputStyles = {
+const inputStyles = {
     fontSize: '20px',
     border: 'none',
     padding: '3px 5px',
@@ -10,7 +10,7 @@ var inputStyles = {
     width: '100%'
 };
 
-var runTimeStyles = {
+const runTimeStyles = {
     maxWidth: '75px',
     fontSize: '20px',
     border: 'none',
@@ -23,11 +23,7 @@ var runTimeStyles = {
     width: '100%'
 };
 
-var direction = {
-    maxWidth: '100px'
-};
-
-var rowStyles = {
+const rowStyles = {
     display: 'flex',
     flexFlow: 'row nowrap',
     alignItems: 'stretch',
@@ -37,33 +33,9 @@ var rowStyles = {
     marginRight: '5px'
 };
 
-var colorSet = {
-    display: 'flex',
-    flexFlow: 'row wrap',
-    padding: 0,
-    margin: 0
-};
-
-var colorSetLabel = {
-    content: '',
-    display: 'flex',
-    flexFlow: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100px',
-    height: '50px',
-    cursor: 'pointer',
-    opacity: .4,
-    color: 'var(--var-color-text-light)',
-    margin: '2px 10px',
-    borderRadius: '2px'
-};
-
-var colors = ['Red', 'Green', 'Blue', 'Yellow', 'White', 'Off'];
-var names = ['Twinkle', 'Stripes', 'Strobe', 'Blink', 'Columns'];
-var directions = ['Forward', 'Backward', 'Bounce'];
-
-
+const colors = ['Red', 'Green', 'Blue', 'Yellow', 'White', 'Off'];
+const names = ['Twinkle', 'Stripes', 'Strobe', 'Blink', 'Columns'];
+const directions = ['Forward', 'Backward', 'Bounce'];
 
 // const availableProcedures = () => await runGetProcedures()
 

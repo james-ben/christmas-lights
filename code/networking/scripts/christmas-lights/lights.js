@@ -1,5 +1,5 @@
 
-var strandStyle = {
+const strandStyles = {
   overflow: 'hidden',
   position: 'fixed',
   zIndex: 1,
@@ -14,7 +14,7 @@ var strandStyle = {
 };
 function Lights() {
   return (
-    <ul style={strandStyle}>
+    <ul style={strandStyles}>
       {Array(50).fill(1).map( (x, i) => <Bulb key={i} index={i}></Bulb>)}
     </ul>
   )

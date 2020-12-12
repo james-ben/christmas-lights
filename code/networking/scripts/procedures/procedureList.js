@@ -1,9 +1,9 @@
-var procedureListStyles = {
+const procedureListStyles = {
     width: '100%',
     display: 'flex',
     flexFlow: 'column nowrap'
 }
-var buttonStyles = {
+const buttonStyles = {
     padding: '7px',
     borderRadius: '2px',
     boxShadow: 'none',
@@ -17,16 +17,14 @@ var buttonStyles = {
     cursor: 'pointer',
 }
 
-
-
 function ProcedureList({procedures, setProcedureList}) {
-    function setProcedure(id, newProcedure) {
+    const setProcedure = (id, newProcedure) => {
         const index = procedures.findIndex(procedure => procedure.id === id)
         procedures[index] = newProcedure;
         console.log(procedures)
         setProcedureList(procedures)
     }
-    function createProcedureRow() {
+    const createProcedureRow = () => {
         const newRow = {
             'id': Math.random().toString(36).substring(2, 15),
             'color_set': ['white'],
@@ -38,7 +36,6 @@ function ProcedureList({procedures, setProcedureList}) {
         }
         const newProcedures = procedures.concat(newRow)
         setProcedureList(newProcedures)
-
     }
 
     return (
@@ -46,7 +43,7 @@ function ProcedureList({procedures, setProcedureList}) {
             {procedures.map(procedure =>
                 <Procedure key={procedure.id} procedure={procedure} setProcedure={setProcedure}></Procedure>
             )}
-            <button style={buttonStyles} onClick={createProcedureRow}></button>
+            <button style={buttonStyles} onClick={createProcedureRow}>+</button>
         </div>
     )
 }
