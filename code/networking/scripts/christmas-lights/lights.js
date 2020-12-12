@@ -1,5 +1,5 @@
 
-var lights = {
+var strandStyle = {
   overflow: 'hidden',
   position: 'fixed',
   zIndex: 1,
@@ -13,14 +13,11 @@ var lights = {
   background: '#333'
 };
 function Lights() {
-
-  return React.createElement(
-    'ul',
-    { style: lights },
-    Array(50).fill(1).map(function (x, i) {
-      return React.createElement(Bulb, { key: i, index: i });
-    })
-  );
+  return (
+    <ul style={strandStyle}>
+      {Array(50).fill(1).map( (x, i) => <Bulb key={i} index={i}></Bulb>)}
+    </ul>
+  )
 }
 
 ReactDOM.render(React.createElement(Lights, null), document.getElementById('christmas-lights'));

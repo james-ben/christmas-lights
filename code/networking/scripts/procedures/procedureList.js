@@ -40,19 +40,15 @@ function ProcedureList({procedures, setProcedureList}) {
         setProcedureList(newProcedures)
 
     }
-    return React.createElement(
-        'div',
-        { style: procedureListStyles },
 
-        procedures.map(procedure =>
-            React.createElement(Procedure, {key: procedure.id, procedure: procedure, setProcedure: setProcedure})
-          ),
-        React.createElement(
-            'button',
-            {style: buttonStyles, onClick: createProcedureRow},
-            '+'
-        ),
-    );
+    return (
+        <div style={procedureListStyles}>
+            {procedures.map(procedure =>
+                <Procedure key={procedure.id} procedure={procedure} setProcedure={setProcedure}></Procedure>
+            )}
+            <button style={buttonStyles} onClick={createProcedureRow}></button>
+        </div>
+    )
 }
 
 // ReactDOM.render(React.createElement(ProcedureList, null), document.getElementById('procedures-container'));

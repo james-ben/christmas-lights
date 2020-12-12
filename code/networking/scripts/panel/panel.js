@@ -77,17 +77,19 @@ function Panel() {
     let onOff = () => {
         runOff()
     }
-    let saveButton = React.createElement('button', {style: button, onClick:onSave}, 'Save')
-    let runButton = React.createElement('button', {style: button, onClick:onRun}, 'Run')
-    let offButton = React.createElement('button', {style: button, onClick:onOff}, 'Off')
 
-    return React.createElement(
-        'div',
-        { style: panelStyles },
-        React.createElement('div', {style: buttonContainer},
-            React.createElement('div', null, saveButton, runButton), offButton),
-        React.createElement(ProcedureList, { procedures: procedures, setProcedureList: setProcedures }),
-    );
+    return (
+        <div style={panelStyles}>
+            <div style={buttonContainer}>
+                <div>
+                    <button style={button} onClick={onSave}>Save</button>
+                    <button style={button} onClick={onRun}>Run</button>
+                </div>
+                <button style={button} onClick={onOff}>Off</button>
+            </div>
+            <ProcedureList procedures={procedures} setProcedureList={setProcedures}></ProcedureList>
+        </div>
+    )
 }
 
 ReactDOM.render(React.createElement(Panel, null), document.getElementById('panel'));

@@ -1,4 +1,4 @@
-var input = {
+var inputStyles = {
     fontSize: '20px',
     border: 'none',
     padding: '3px 5px',
@@ -27,7 +27,7 @@ var direction = {
     maxWidth: '100px'
 };
 
-var row = {
+var rowStyles = {
     display: 'flex',
     flexFlow: 'row nowrap',
     alignItems: 'stretch',
@@ -57,13 +57,6 @@ var colorSetLabel = {
     color: 'var(--var-color-text-light)',
     margin: '2px 10px',
     borderRadius: '2px'
-    // .colorSet label:hover {
-    //     opacity: .9;
-    // }
-    // .colorSet input:checked + label {
-    //     opacity: 1;
-    // }
-
 };
 
 var colors = ['Red', 'Green', 'Blue', 'Yellow', 'White', 'Off'];
@@ -76,41 +69,25 @@ var directions = ['Forward', 'Backward', 'Bounce'];
 
 function Procedure({procedure, setProcedure}) {
     const { id } = procedure;
-    const [name, setName] = useState(procedure.name);
-    const [runTime, setRunTime] = useState(procedure.run_time);
 
     function changeProcedure({ currentTarget }) {
         const newName = currentTarget.value.toLowerCase();
-        const newProcedure = {
-            blink_time: [],
-            brightness: [0, 1],
-            color_set: ["white"],
-            direction: "",
-            id,
-            name: newName,
-            run_time: runTime
-         };
-        setName(newName);
-        setProcedure(id, newProcedure);
+        procedure.name = newName;
+        setProcedure(id, procedure);
     }
     function changeRunTime({ currentTarget }) {
-        setRunTime(currentTarget.value);
         procedure.run_time = currentTarget.value;
         setProcedure(id, procedure);
     }
     
-    return React.createElement(
-        'div',
-        { id: 'procedure', style: row },
-        React.createElement('input', { type: 'text', placeholder: 'Seconds', style: runTimeStyles, value: runTime, onChange: changeRunTime }),
-        React.createElement(
-            'select',
-            { id: 'names', style: input, onChange: changeProcedure, value: name },
-            React.createElement('option', { value: 'twinkle' }, 'Twinkle'),
-            React.createElement('option', { value: 'stripes' }, 'Stripes'),
-            React.createElement('option', { value: 'strobe'}, 'Strobe'),
-            React.createElement('option', { value: 'blink' }, 'Blink'),
-            React.createElement('option', { value: 'crazy' }, 'Crazy')
-        )
-    );
+    return (
+        <div id='procedure' style={rowStyles}>
+            <input type='text' placeholder='Seconds' style={runTimeStyles} value={procedure.run_time} onChange={changeRunTime}></input>
+            <select id='names' style={inputStyles} onChange={changeProcedure} value={procedure.name}>
+            {names.map(name => 
+                <option value={name}>{name}</option>
+            )}
+            </select>
+        </div>
+    )
 }

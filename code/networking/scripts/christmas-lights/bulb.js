@@ -14,14 +14,14 @@ var bulb = {
   animationDelay: '0s'
 };
 
-var casing = {
+var casingStyle = {
   display: 'block',
   width: 'var(--var-lights-width)',
   height: 'var(--var-lights-width)',
   background: '#2a2a2a',
   borderRadius: '3px'
 };
-var wire = {
+var wireStyle = {
   display: 'block',
   margin: 0,
   marginTop: '-30px',
@@ -64,13 +64,12 @@ function generateStyleList(index) {
 
 function Bulb(_ref) {
   var index = _ref.index;
-
   var bulbStyleList = generateStyleList(index);
-  return React.createElement(
-    'span',
-    null,
-    React.createElement('div', { style: casing }),
-    React.createElement('li', { style: bulbStyleList }),
-    React.createElement('div', { style: wire })
-  );
+  return (
+    <span>
+      <div style={casingStyle}></div>
+      <li style={bulbStyleList}></li>
+      <div style={wireStyle}></div>
+    </span>
+  )
 }
