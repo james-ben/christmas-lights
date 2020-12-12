@@ -1,7 +1,7 @@
 var panelStyles = {
     marginTop: '80px',
     backgroundColor: 'var(--var-color-text-light)',
-    padding: '10px',
+    padding: '30px 100px',
     borderRadius: '3px'
 }
 var buttonContainer = {
@@ -14,7 +14,7 @@ var button = {
     boxShadow: 'none',
     fontSize: '.8rem',
     border: 'none',
-    margin: '10px',
+    marginRight: '10px',
     cursor: 'pointer',
     background: 'var(--var-color-primary)',
     color: 'var(--var-color-text-light)',

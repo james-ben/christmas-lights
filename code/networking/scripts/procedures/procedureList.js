@@ -9,7 +9,6 @@ var buttonStyles = {
     boxShadow: 'none',
     fontSize: '.8rem',
     border: 'none',
-    margin: '10px',
     cursor: 'pointer',
     background: 'var(--var-color-primary)',
     color: 'var(--var-color-text-light)',
