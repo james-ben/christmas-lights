@@ -1,39 +1,20 @@
-import time
 from random import choice
-from itertools import cycle
+from itertools import cycle, tee
 
 from light_utils import colors
 from light_utils import twinkle
+from procedures.procedure import Procedure
 
 
-class ColumnLights:
+class ColumnLights(Procedure):
 	def __init__(self):
-		self.timerInterrupt = False
-		self.color_set = None
-		self.color_ordered = None
-		self.brightness = None
-		self.blink_time = None
-		self.direction = None
-		self.run_time = None
-		self.num_runs = None
-		self.grid = None
-		self.colorCycle = None
+		super().__init__()
+		self.forwardList = None
+		self.backwardList = None
+		self.bounceList = None
 
-	def parseParams(self, params):
-		"""Read all the data from the input dictionary."""
-		self.color_set = colors.parseColorSet(params["color_set"])
-		self.color_ordered = params["color_ordered"]
-		self.brightness = params["brightness"]
-		self.blink_time = params["blink_time"]
-		self.direction = params["direction"]
-		self.colorCycle = cycle(self.color_set)
-
-		if "run_time" in params:
-			self.run_time = params["run_time"]
-			self.num_runs = None
-		else:
-			self.run_time = None
-			self.num_runs = params["num_runs"]
+	# def parseParams(self, params):
+	# 	"""Read all the data from the input dictionary."""
 
 	def nextColor(self):
 		if self.color_ordered:
@@ -43,59 +24,112 @@ class ColumnLights:
 		# get intensity
 		return colors.colorBrightness(nextColor, self.brightness)
 
-	def run(self, grid, params, stopFlag):
-		self.grid = grid
-		self.parseParams(params)
-		# set all to off
-		self.grid.setAllColor(colors.Off)
-		self.grid.showPixels()
+	def initStrand(self, grid):
+		# optionally wipe
+		if not self.fade:
+			grid.setAllColor(colors.Off)
+			grid.showPixels()
 
-		# run
-		if self.run_time is not None:
-			while not stopFlag():
-				self.iteration(self.nextColor())
-		else:
-			for _ in range(self.num_runs):
-				self.iteration(self.nextColor())
-				if stopFlag():
-					break
+		# set up lists
+		if self.forwardList is None:
+			# only need to do it once
+			self.forwardList = [i for i in range(grid.num_cols)]
+			self.backwardList = list(reversed(self.forwardList))
+			self.bounceList = self.forwardList[:-1] + self.backwardList[:-1]
 
-	def iteration(self, nextColor):
+	# def columnBounce(self, color):
+	# 	for i in range(self.grid.num_cols-1):
+	# 		self.grid.setColumn(i, color)
+	# 		self.grid.setColumn(i+1, color)
+	# 		time.sleep(twinkle.getTime(self.blink_time))
+	# 		self.grid.setColumn(i, colors.Off)
+	# 	self.grid.setColumn(self.grid.num_cols-1, colors.Off)
+	# 	for j in range(self.grid.num_cols-2, 1, -1):
+	# 		self.grid.setColumn(j, color)
+	# 		self.grid.setColumn(j-1, color)
+	# 		time.sleep(twinkle.getTime(self.blink_time))
+	# 		self.grid.setColumn(j, colors.Off)
+
+	def iteration(self, stopEvent):
+		"""A generator which will return the next commands to do.
+
+		Returns a tuple (idx, color, time, show)
+		where idx is the index of a pixel (could by "rand"),
+		color is a RGB tuple, already scaled by brightness
+		time is how long to sleep before next update
+		and show is boolean whether or not to flush updates to strand
+		"""
+
 		# direction
 		if self.direction == "forward":
-			# up
-			self.columnRight(nextColor)
+			colIter = cycle(self.forwardList)
+			# divisor = 2
 		elif self.direction == "backward":
-			# down
-			self.columnLeft(nextColor)
+			colIter = cycle(self.backwardList)
+			# divisor = 2
 		elif self.direction == "bounce":
-			# bounce
-			self.columnBounce(nextColor)
+			colIter = cycle(self.bounceList)
+			# divisor = 3
 
-	def columnRight(self, color):
-		for i in range(self.grid.num_cols):
-			self.grid.setColumn(i, color)
-			time.sleep(twinkle.getTime(self.blink_time))
-			self.grid.setColumn(i, colors.Off)
+		# colors
+		if self.color_ordered:
+			colorCycle = cycle(self.color_set)
+			colorFunc = next
+		else:
+			colorCycle = self.color_set
+			colorFunc = choice
 
-	def columnLeft(self, color):
-		for i in range(self.grid.num_cols-1, -1, -1):
-			self.grid.setColumn(i, color)
-			time.sleep(twinkle.getTime(self.blink_time))
-			self.grid.setColumn(i, colors.Off)
+		# counters
+		# cur_runs = 0
+		iterCount = 0
 
-	def columnBounce(self, color):
-		for i in range(self.grid.num_cols-1):
-			self.grid.setColumn(i, color)
-			self.grid.setColumn(i+1, color)
-			time.sleep(twinkle.getTime(self.blink_time))
-			self.grid.setColumn(i, colors.Off)
-		self.grid.setColumn(self.grid.num_cols-1, colors.Off)
-		for j in range(self.grid.num_cols-2, 1, -1):
-			self.grid.setColumn(j, color)
-			self.grid.setColumn(j-1, color)
-			time.sleep(twinkle.getTime(self.blink_time))
-			self.grid.setColumn(j, colors.Off)
+		# iterators
+		i1, i2 = tee(colIter)
+		# next(i2)
+
+		# set up complete, begin yielding instructions
+		while not stopEvent.is_set():
+			# how much time to sleep next
+			if (iterCount % 2) == 0:
+				nextTime = twinkle.getTime(self.blink_time)
+				showTrue = True
+				# color pick
+				nextColor = colorFunc(colorCycle)
+				nextColor = colors.colorBrightness(nextColor, self.brightness)
+				# column pick
+				nextCol = next(i1)
+			else:
+				nextTime = 0
+				showTrue = False
+				nextColor = colors.Off
+				# column stays the same here
+
+			# format column string
+			nextIdx = "c{}".format(nextCol)
+
+			# next instruction
+			yield (nextIdx, nextColor, nextTime, showTrue)
+
+			# update counters
+			iterCount += 1
+
+			# doing based on runs, not time
+			if (self.num_runs is not None) and ((iterCount // 2) == self.num_runs):
+				stopEvent.set()
+
+
+	def run(self, grid, params, stopEvent):
+		"""Run this procedure with the given parameters until stopEvent is set.
+
+		stopEvent is a threading Event.
+		Will call parseParams(), and initStrand() if fade is not true.
+		Returns a generator to tell what light to change next.
+		"""
+		self.parseParams(params)
+		self.initStrand(grid)
+
+		# return a generator
+		return self.iteration(stopEvent)
 
 
 presets = [

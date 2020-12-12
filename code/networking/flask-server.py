@@ -130,11 +130,34 @@ class TreeServer(object):
 					break
 				# do the next operation
 				nextIdx, nextColor, nextTime, show = next(gen)
-				if nextIdx == "rand":
-					nextIdx = self.strand.randIdx()
-				self.strand.setPixelColor(nextIdx, nextColor)
+
+				# decode index command
+				if isinstance(nextIdx, str):
+					# whole tree
+					if nextIdx == "all":
+						self.strand.setAllColor(nextColor)
+					# random index
+					elif nextIdx == "rand":
+						nextIdx = self.strand.randIdx()
+						self.strand.setPixelColor(nextIdx, nextColor)
+					# setting columns
+					elif nextIdx.startswith("c"):
+						colIdx = int(nextIdx[1:])
+						self.grid.setColumn(colIdx, nextColor)
+					# setting rows
+					elif nextIdx.startswith("r"):
+						rowIdx = int(nextIdx[1:])
+						self.grid.setRow(rowIdx, nextColor)
+					else:
+						print("Error, invalid encoding '{}'".format(nextIdx))
+				else:
+					# plain old number
+					self.strand.setPixelColor(nextIdx, nextColor)
+
+				# maybe flush the colors
 				if show:
 					self.strand.showPixels()
+				# maybe sleep
 				if nextTime > 0:
 					time.sleep(nextTime)
 

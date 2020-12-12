@@ -1,4 +1,3 @@
-import time
 from random import choice
 from itertools import cycle
 
@@ -48,9 +47,10 @@ class TwinkleLights(Procedure):
 		and show is boolean whether or not to flush updates to strand
 		"""
 
-		# this will be changed externally
 		cur_runs = 0
 		iterCount = 0
+		# perhaps could use
+		# https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.choice.html
 		if self.color_ordered:
 			colorCycle = cycle(self.color_set)
 			colorFunc = next
@@ -58,11 +58,13 @@ class TwinkleLights(Procedure):
 			colorCycle = self.color_set
 			colorFunc = choice
 
+		# this will be changed externally
 		while not stopEvent.is_set():
 			# how much time to sleep next
 			nextTime = twinkle.getTime(self.blink_time)
 			# color pick
 			nextColor = colorFunc(colorCycle)
+			nextColor = colors.colorBrightness(nextColor, self.brightness)
 			# update after twGroup assignments have been made
 			showTrue = (iterCount % self.twGroup) == 0
 

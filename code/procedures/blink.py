@@ -1,75 +1,74 @@
-import time
 from random import choice
 from itertools import cycle
 
 from light_utils import twinkle
 from light_utils import colors
+from procedures.procedure import Procedure
 
 
-class BlinkLights():
+class BlinkLights(Procedure):
 	def __init__(self):
-		self.timerInterrupt = False
-		self.color_set = None
-		self.color_ordered = None
-		self.brightness = None
-		self.blink_time = None
-		self.direction = None
-		self.run_time = None
-		self.num_runs = None
-		self.strand = None
-		self.colorCycle = None
+		super().__init__()
 
-	def parseParams(self, params):
-		"""Read all the data from the input dictionary."""
-		self.color_set = colors.parseColorSet(params["color_set"])
-		self.colorCycle = cycle(self.color_set)
-		self.color_ordered = params["color_ordered"]
-		self.brightness = params["brightness"]
-		self.blink_time = params["blink_time"]
-		self.direction = params["direction"]
+	# def parseParams(self, params):
+	# 	"""Read all the data from the input dictionary."""
 
-		# how long to run
-		if "run_time" in params:
-			self.run_time = params["run_time"]
-			self.num_runs = None
-		else:
-			self.run_time = None
-			self.num_runs = params["num_runs"]
+	def run(self, strand, params, stopEvent):
+		"""Run this procedure with the given parameters until stopEvent is set.
 
-	def run(self, strand, params, stopFlag):
-		"""Target for new thread."""
-		# initialization
-		self.strand = strand
+		stopEvent is a threading Event.
+		Will call parseParams().
+		Returns a generator to tell what light to change next.
+		"""
+
 		self.parseParams(params)
 
-		# run
-		if self.run_time is not None:
-			while not stopFlag():
-				self.iteration()
-		else:
-			for _ in range(self.num_runs):
-				self.iteration()
-				if stopFlag():
-					break
+		# return a generator
+		return self.iteration(stopEvent)
 
-	def iteration(self):
-		# get the next color
+	def iteration(self, stopEvent):
+		"""A generator which will return the next commands to do.
+
+		Returns a tuple (idx, color, time, show)
+		where idx is special value "all",
+		color is a RGB tuple, already scaled by brightness
+		time is how long to sleep before next update
+		and show is boolean whether or not to flush updates to strand
+		"""
+
+		# cur_runs = 0  # just iterCount / 2
+		iterCount = 0
+
+		# set up the color order
 		if self.color_ordered:
-			nextColor = next(self.colorCycle)
+			colorCycle = cycle(self.color_set)
+			colorFunc = next
 		else:
-			nextColor = choice(self.color_set)
-		# get intensity
-		nextColor = colors.colorBrightness(nextColor, self.brightness)
+			colorCycle = self.color_set
+			colorFunc = choice
 
-		# blink color
-		self.strand.setAllColor(nextColor)
-		self.strand.showPixels()
-		time.sleep(twinkle.getTime(self.blink_time))
+		while not stopEvent.is_set():
+			# how much to sleep next
+			nextTime = twinkle.getTime(self.blink_time)
 
-		# turn off
-		self.strand.setAllColor(colors.Off)
-		self.strand.showPixels()
-		time.sleep(twinkle.getTime(self.blink_time))
+			# every other time, color is "off"
+			if (iterCount % 2) == 0:
+				nextColor = colors.Off
+			else:
+				nextColor = colorFunc(colorCycle)
+				# get intensity
+				nextColor = colors.colorBrightness(nextColor, self.brightness)
+
+			# next instruction
+			yield ("all", nextColor, nextTime, True)
+
+			# update the counters
+			iterCount += 1
+
+			# doing based on runs, not time
+			if (self.num_runs is not None) and ((iterCount // 2) == self.num_runs):
+				stopEvent.set()
+
 
 
 # preset procedures
