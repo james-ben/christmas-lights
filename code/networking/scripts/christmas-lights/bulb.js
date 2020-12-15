@@ -53,7 +53,7 @@ const accent = {
 };
 
 function generateStyleList(index) {
-  const color = primary;
+  let color = primary;
   if (index % 2 === 0) color = secondary;
   if (index % 3 === 0) color = secondaryBright;
   if (index % 4 === 0) color = accent;
