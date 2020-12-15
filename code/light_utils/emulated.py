@@ -78,7 +78,11 @@ class FakeTree(object):
 
 	# user accessible functions
 	def drawPixel(self, idx, color):
-		pygame.draw.ellipse(self.lights, color, pygame.Rect(*self.pixels[idx], self.light_width, self.light_height))
+		try:
+			pygame.draw.ellipse(self.lights, color, pygame.Rect(*self.pixels[idx], self.light_width, self.light_height))
+		except TypeError as e:
+			print(e, color)
+			raise e
 
 	def updatePixels(self):
 		self.screen.blit(self.lights, (0, 0))

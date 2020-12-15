@@ -10,7 +10,7 @@ from flask import Flask, request, render_template, send_from_directory
 sys.path.append(os.path.abspath("../"))
 from procedures import (twinkler, stripes,
                         strobe, columns,
-                        blink, crazy)
+                        blink)
 from networking import input_parser
 from light_utils import colors
 
@@ -31,7 +31,6 @@ ts = None
 
 class TreeServer(object):
 	def __init__(self):
-		self.processHandle = None
 		self.grid = grid.Grid()
 		# alias
 		self.strand = self.grid
@@ -39,7 +38,6 @@ class TreeServer(object):
 		# interrupt flags
 		self.stopFlag = False
 		self.timerInterrupt = False
-		self.timerHandle = None
 
 		# procedure objects
 		self.twinkler = twinkler.TwinkleLights()
@@ -47,7 +45,6 @@ class TreeServer(object):
 		self.strobe = strobe.StrobeLights()
 		self.column = columns.ColumnLights()
 		self.blinker = blink.BlinkLights()
-		self.crazy = crazy.CrazyOldColumnLights()
 
 		self.functionMap = {
 			"twinkle": self.twinkler.run,
@@ -55,7 +52,6 @@ class TreeServer(object):
 			"strobe": self.strobe.run,
 			"columns": self.column.run,
 			"blink": self.blinker.run,
-			"crazy": self.crazy.run,
 		}
 
 		# init the state
@@ -63,14 +59,15 @@ class TreeServer(object):
 		self.procCycle = cycle(self.procList)
 
 		# background thread that runs all the things
-		self.backLock = False
+		self.backLock = threading.Event()
+		self.procFlag = threading.Event()
 		self.completed = False
 		self.backgroundThread = threading.Thread(target=self.runBackground)
 		self.backgroundThread.start()
 
 	def __del__(self):
 		"""Stop all threads and destruct the strand/grid."""
-		self.backLock = True
+		self.backLock.set()
 		self.completed = True
 		self.backgroundThread.join()
 		del self.grid
@@ -79,25 +76,14 @@ class TreeServer(object):
 		nextParam = None
 		while not self.completed:
 
-			# spin lock to avoid race conditions
-			while self.backLock:
-				pass
+			# wait until event is set (means params are done changing)
+			if not self.backLock.is_set():
+				self.backLock.wait()
 
 			# keep history
 			lastParam = nextParam
 			# get the next procedure to run
 			nextParam = next(self.procCycle)
-
-			# wait for old job to finish
-			if self.timerHandle is not None:
-				self.timerInterrupt = True
-				# this could take a while TODO: make better
-				self.timerHandle.join()
-				self.timerHandle = None
-			if self.processHandle is not None:
-				self.stopFlag = True
-				self.processHandle.join()
-				self.processHandle = None
 
 			# special name to turn it all off
 			if nextParam["name"].lower() == "off":
@@ -113,27 +99,55 @@ class TreeServer(object):
 				nextParam["fade"] = True
 
 			# start up the procedure
+			self.procFlag.clear()
 			targetFunction = self.functionMap[nextParam["name"]]
-			self.processHandle = threading.Thread(target=targetFunction, args=(
-				self.strand, nextParam, lambda: self.stopFlag))
+			# function returns a generator
+			gen = targetFunction(self.strand, nextParam, self.procFlag)
 
-			# timer to finish if needed
-			if "run_time" in nextParam:
-				self.timerHandle = threading.Thread(target=self.timerCallback,
-				                                    args=(nextParam["run_time"],))
+			# how long to run
+			useTime = nextParam["run_time"] is not None
+			if useTime:
+				endTime = time.time() + nextParam["run_time"]
 
-			# start all the things
-			if self.processHandle:
-				self.stopFlag = False
-				self.processHandle.start()
+			while not self.procFlag.is_set():
+				# should we stop?
+				if useTime and (time.time() > endTime):
+					break
+				# do the next operation
+				nextIdx, nextColor, nextTime, show = next(gen)
 
-			if self.timerHandle:
-				self.timerInterrupt = False
-				self.timerHandle.start()
+				# decode index command
+				if isinstance(nextIdx, str):
+					# whole tree
+					if nextIdx == "all":
+						self.strand.setAllColor(nextColor)
+					# random index
+					elif nextIdx == "rand":
+						nextIdx = self.strand.randIdx()
+						self.strand.setPixelColor(nextIdx, nextColor)
+					# setting columns
+					elif nextIdx.startswith("c"):
+						colIdx = int(nextIdx[1:])
+						self.grid.setColumn(colIdx, nextColor)
+					# setting rows
+					elif nextIdx.startswith("r"):
+						rowIdx = int(nextIdx[1:])
+						self.grid.setRow(rowIdx, nextColor)
+					else:
+						print("Error, invalid encoding '{}'".format(nextIdx))
+				else:
+					# plain old number
+					self.strand.setPixelColor(nextIdx, nextColor)
 
-			if self.processHandle:
-				# this will enforce waiting correctly
-				self.processHandle.join()
+				# maybe flush the colors
+				if show:
+					self.strand.showPixels()
+				# maybe sleep
+				if nextTime > 0:
+					time.sleep(nextTime)
+
+			# if break from time,
+			self.procFlag.set()
 
 	def runProcedure(self, params):
 		"""Params is a list of dictionaries with all of the required keys.
@@ -142,15 +156,13 @@ class TreeServer(object):
 		This will iterate through each item in the list indefinitely, doing one at a time.
 		"""
 
-		self.backLock = True
+		# event acts as semaphore
+		self.backLock.clear()
 		self.procList = params
 		self.procCycle = cycle(params)
-		self.backLock = False
-
-	def timerCallback(self, timeout):
-		# print("Timer sleeping for {} seconds".format(timeout))
-		time.sleep(timeout)
-		self.stopFlag = True
+		self.backLock.set()
+		# pre-empt the procedure
+		self.procFlag.set()
 
 
 # home page
