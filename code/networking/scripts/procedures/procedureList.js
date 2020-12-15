@@ -37,11 +37,16 @@ function ProcedureList({procedures, setProcedureList}) {
         const newProcedures = procedures.concat(newRow)
         setProcedureList(newProcedures)
     }
+    const removeProcedure = ({currentTarget}) => {
+        const id = currentTarget.attributes.dataid.value
+        const newProcedures = procedures.filter(p => p.id !== id)
+        setProcedureList(newProcedures)
+    }
 
     return (
         <div style={procedureListStyles}>
             {procedures.map(procedure =>
-                <Procedure key={procedure.id} procedure={procedure} setProcedure={setProcedure}></Procedure>
+                <Procedure key={procedure.id} procedure={procedure} setProcedure={setProcedure} removeProcedure={removeProcedure}></Procedure>
             )}
             <button style={buttonStyles} onClick={createProcedureRow}>+</button>
         </div>

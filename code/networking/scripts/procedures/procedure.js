@@ -20,13 +20,26 @@ const rowStyles = {
     flex: 1,
     marginRight: '5px'
 };
+const deleteButtonStyles = {
+    padding: '7px',
+    borderRadius: '2px',
+    boxShadow: 'none',
+    fontSize: '.8rem',
+    border: 'none',
+    cursor: 'pointer',
+    height: '35px',
+    width: '40px',
+    cursor: 'pointer',
+    color: '#d11414',
+    fontWeight: 'bold'
+}
+
 const colors = ['Red', 'Green', 'Blue', 'Yellow', 'White', 'Off'];
-const names = ['Twinkle', 'Stripes', 'Strobe', 'Blink', 'Columns'];
 const directions = ['Forward', 'Backward', 'Bounce'];
 
 // const availableProcedures = () => await runGetProcedures()
 
-function Procedure({procedure, setProcedure}) {
+function Procedure({procedure, setProcedure, removeProcedure}) {
     const { id } = procedure;
 
     function changeProcedureName(newName) {
@@ -42,6 +55,7 @@ function Procedure({procedure, setProcedure}) {
         <div id='procedure' style={rowStyles}>
             <input type='text' placeholder='Seconds' style={runTimeStyles} defaultValue={procedure.run_time} onChange={changeRunTime}></input>
             <ProcedureName name={procedure.name} setName={changeProcedureName}></ProcedureName>
+            <button onClick={removeProcedure} dataId={id} style={deleteButtonStyles}>x</button>
         </div>
     )
 }
