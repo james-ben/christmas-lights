@@ -3,14 +3,14 @@ const inputStyles = {
     border: 'none',
     padding: '3px 5px',
     paddingRight: '2px',
+    margin: '0px',
     marginLeft: '5px',
-    marginBottom: '5px',
     fontWeight: 100,
     flex: 1,
-    width: '100%'
-};
+    maxWidth: '159px'
+  };
 
-const names = ['Twinkle', 'Stripes', 'Strobe', 'Blink', 'Columns'];
+const names = ['twinkle', 'stripes', 'strobe', 'blink', 'columns'];
 
 function ProcedureName({name, setName}) {
 

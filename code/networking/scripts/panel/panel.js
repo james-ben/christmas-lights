@@ -28,7 +28,7 @@ const { useState } = React
 function Panel() {
     const defaultProcedures = [
         {   'id': Math.random().toString(36).substring(2, 15),
-            'color_set': ['white'],
+            'color_set': ['#ffffff'],
             'brightness': [0,1],
             'blink_time': [],
             'name': 'twinkle',
@@ -36,7 +36,7 @@ function Panel() {
             'run_time': '10',
         },
         {   'id': Math.random().toString(36).substring(2, 15),
-            'color_set': ['blue'],
+            'color_set': ['#344F86'],
             'brightness': [0,1],
             'blink_time': [],
             'name': 'strobe',
@@ -44,10 +44,10 @@ function Panel() {
             'run_time': '10',
         },
         {   'id': Math.random().toString(36).substring(2, 15),
-            'color_set': ['red'],
+            'color_set': ['#ff0000'],
             'brightness': [0,1],
             'blink_time': [],
-            'name': 'crazy',
+            'name': 'stripes',
             'direction': '',
             'run_time': '10',
         }

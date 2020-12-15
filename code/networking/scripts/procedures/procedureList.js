@@ -20,9 +20,10 @@ const buttonStyles = {
 function ProcedureList({procedures, setProcedureList}) {
     const setProcedure = (id, newProcedure) => {
         const index = procedures.findIndex(procedure => procedure.id === id)
-        procedures[index] = newProcedure;
-        console.log(procedures)
-        setProcedureList(procedures)
+        const newProcedures = [...procedures]
+        newProcedures[index] = newProcedure;
+        console.log(newProcedures)
+        setProcedureList(newProcedures)
     }
     const createProcedureRow = () => {
         const newRow = {
