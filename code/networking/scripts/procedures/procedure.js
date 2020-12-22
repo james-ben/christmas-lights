@@ -25,7 +25,7 @@ const nameStyles = {
     fontWeight: 100,
     flex: 1,
     margin: '0px',
-    maxWidth: '150px'
+    maxWidth: '120px'
 };
 const rowStyles = {
     display: 'flex',
@@ -92,8 +92,8 @@ function Procedure({procedure, setProcedure, removeProcedure}) {
     
     return (
         <div id='procedure' style={rowStyles}>
-            <button onClick={editProcedure} style={editButtonStyles}></button>
-            <button onClick={removeProcedure} style={deleteButtonStyles}></button>
+            <button onClick={editProcedure} style={editButtonStyles} ></button>
+            <button onClick={removeProcedure} style={deleteButtonStyles} id={procedure.id}></button>
             {isEditing && <input type='text' placeholder='Seconds' style={editableRunTimeStyles} defaultValue={procedure.run_time} onChange={changeRunTime}></input>}
             {!isEditing && <p style={runTimeStyles} >{procedure.run_time}</p>}
             {isEditing && <ProcedureName name={procedure.name} setName={changeProcedureName}></ProcedureName>}

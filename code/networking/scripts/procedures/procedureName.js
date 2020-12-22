@@ -7,7 +7,7 @@ const inputStyles = {
     marginLeft: '5px',
     fontWeight: 100,
     flex: 1,
-    maxWidth: '159px'
+    maxWidth: '129px'
   };
 
 const names = ['twinkle', 'stripes', 'strobe', 'blink', 'columns'];
@@ -21,8 +21,8 @@ function ProcedureName({name, setName}) {
     
     return (
       <select id='names' style={inputStyles} onChange={changeName} defaultValue={name}>
-      {names.map(name => 
-          <option value={name}>{name}</option>
+      {names.map((name, index) => 
+          <option value={name} key={index}>{name}</option>
       )}
       </select>
     )

@@ -39,7 +39,7 @@ function ProcedureList({procedures, setProcedureList}) {
         setProcedureList(newProcedures)
     }
     const removeProcedure = ({currentTarget}) => {
-        const id = currentTarget.attributes.dataid.value
+        const id = currentTarget.attributes.id.value
         const newProcedures = procedures.filter(p => p.id !== id)
         setProcedureList(newProcedures)
     }
