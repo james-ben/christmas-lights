@@ -1,5 +1,15 @@
+const brightnessStyles = {
+    fontSize: '20px',
+    border: 'none',
+    padding: '3px 5px',
+    paddingRight: '2px',
+    fontWeight: 100,
+    flex: 1,
+    maxWidth: '40px',
+    margin: '0px 5px'
+};
 const editableRunTimeStyles = {
-    maxWidth: '50px',
+    maxWidth: '40px',
     fontSize: '20px',
     border: 'none',
     padding: '3px 5px',
@@ -8,7 +18,7 @@ const editableRunTimeStyles = {
     flex: 1
 };
 const runTimeStyles = {
-    maxWidth: '50px',
+    maxWidth: '40px',
     fontSize: '20px',
     border: 'none',
     padding: '3px 5px',
@@ -25,6 +35,7 @@ const nameStyles = {
     fontWeight: 100,
     flex: 1,
     margin: '0px',
+    marginLeft: '10px',
     maxWidth: '120px'
 };
 const rowStyles = {
@@ -90,15 +101,36 @@ function Procedure({procedure, setProcedure, removeProcedure}) {
         setProcedure(id, newProcedure)
     }
     
+    function changeBrightnessMax({ currentTarget }) {
+        procedure.brightness[1] = currentTarget.value;
+        setProcedure(id, procedure)
+    }
+    
+    function changeBrightnessMin({ currentTarget }) {
+        procedure.brightness[0] = currentTarget.value;
+        setProcedure(id, procedure)
+    }
+    
     return (
         <div id='procedure' style={rowStyles}>
             <button onClick={editProcedure} style={editButtonStyles} ></button>
             <button onClick={removeProcedure} style={deleteButtonStyles} id={procedure.id}></button>
+
             {isEditing && <input type='text' placeholder='Seconds' style={editableRunTimeStyles} defaultValue={procedure.run_time} onChange={changeRunTime}></input>}
-            {!isEditing && <p style={runTimeStyles} >{procedure.run_time}</p>}
+            {!isEditing && <p style={runTimeStyles}>{procedure.run_time}</p>}
+            <p style={runTimeStyles}>(s)</p>
+
             {isEditing && <ProcedureName name={procedure.name} setName={changeProcedureName}></ProcedureName>}
             {!isEditing && <p style={nameStyles} >{procedure.name}</p>}
+
             <ColorPicker colors={procedure.color_set} setColors={changeColors} isEditing={isEditing}></ColorPicker>
+
+            <p style={{marginLeft: '10px'}}>Brightness (0-1): </p>
+            {isEditing && <input style={brightnessStyles} type='text' placeholder='Brightness Min' defaultValue={procedure.brightness[0]} onChange={changeBrightnessMin}/>}
+            {!isEditing && <p style={brightnessStyles}>{procedure.brightness[0]}</p>}
+            {isEditing && <input style={brightnessStyles} type='text' placeholder='Brightness Max' defaultValue={procedure.brightness[1]} onChange={changeBrightnessMax}/>}
+            {!isEditing && <p style={brightnessStyles}>{procedure.brightness[1]}</p>}
+            
         </div>
     )
 }
