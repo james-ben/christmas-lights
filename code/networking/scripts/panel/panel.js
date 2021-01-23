@@ -30,10 +30,12 @@ function Panel() {
         {   'id': Math.random().toString(36).substring(2, 15),
             'color_set': ['#ffffff'],
             'brightness': [0,1],
-            'blink_time': [],
+            'blink_time': [.5, .5],
             'name': 'twinkle',
-            'direction': '',
+            'direction': 'forward',
             'run_time': '10',
+            'color_ordered': true,
+            'fade': false
         }
     ]
     const [procedures, setProcedures] = useState(defaultProcedures);
