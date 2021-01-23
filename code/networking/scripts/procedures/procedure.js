@@ -1,12 +1,40 @@
-const brightnessStyles = {
+const rangeStyles = {
     fontSize: '20px',
     border: 'none',
     padding: '3px 5px',
     paddingRight: '2px',
     fontWeight: 100,
     flex: 1,
-    maxWidth: '40px',
-    margin: '0px 5px'
+    margin: '0px 5px',
+    maxWidth: '35px'
+};
+const directionStyles = {
+    fontSize: '20px',
+    border: 'none',
+    padding: '3px 5px',
+    paddingRight: '2px',
+    fontWeight: 100,
+    flex: 1,
+    margin: '0px 5px 0px 10px'
+};
+const sectionStyles = {
+    display: 'flex',
+    flexFlow: 'row wrap',
+    marginLeft: '20px',
+    alignItems: 'center'
+};
+const colorOrderLabelStyles = {
+    width: '90px',
+    paddingLeft: '10px'
+};
+const fadeLabelStyles = {
+    width: '50px'
+};
+const colorOrderStyles = {
+    display: 'flex',
+    flexFlow: 'row nowrap',
+    alignItems: 'center',
+    marginLeft: '10px'
 };
 const editableRunTimeStyles = {
     maxWidth: '40px',
@@ -55,7 +83,7 @@ const deleteButtonStyles = {
     cursor: 'pointer',
     color: '#d11414',
     fontWeight: 'bold',
-    backgroundImage: 'url(static/delete.png)',
+    backgroundImage: 'url(../static/delete.png)',
     backgroundRepeat: 'no-repeat',
     backgroundSize: 'contain',
     backgroundColor: 'inherit',
@@ -67,7 +95,7 @@ const editButtonStyles = {
     boxShadow: 'none',
     border: 'none',
     cursor: 'pointer',
-    backgroundImage: 'url(static/edit.png)',
+    backgroundImage: 'url(../static/edit.png)',
     backgroundRepeat: 'no-repeat',
     backgroundSize: 'contain',
     backgroundColor: 'inherit',
@@ -101,6 +129,12 @@ function Procedure({procedure, setProcedure, removeProcedure}) {
         setProcedure(id, newProcedure)
     }
     
+    
+    function changeColorOrder({ currentTarget }) {
+        procedure.color_ordered = currentTarget.checked
+        setProcedure(id, newProcedure)
+    }
+    
     function changeBrightnessMax({ currentTarget }) {
         procedure.brightness[1] = currentTarget.value;
         setProcedure(id, procedure)
@@ -108,6 +142,26 @@ function Procedure({procedure, setProcedure, removeProcedure}) {
     
     function changeBrightnessMin({ currentTarget }) {
         procedure.brightness[0] = currentTarget.value;
+        setProcedure(id, procedure)
+    }
+    
+    function changeBlinkTimeMax({ currentTarget }) {
+        procedure.blink_time[1] = currentTarget.value;
+        setProcedure(id, procedure)
+    }
+    
+    function changeBlinkTimeMin({ currentTarget }) {
+        procedure.blink_time[0] = currentTarget.value;
+        setProcedure(id, procedure)
+    }
+    
+    function changeDirection({ currentTarget }) {
+        procedure.direction = currentTarget.value;
+        setProcedure(id, procedure)
+    }
+    
+    function changeFade({ currentTarget }) {
+        procedure.fade = currentTarget.checked;
         setProcedure(id, procedure)
     }
     
@@ -124,13 +178,41 @@ function Procedure({procedure, setProcedure, removeProcedure}) {
             {!isEditing && <p style={nameStyles} >{procedure.name}</p>}
 
             <ColorPicker colors={procedure.color_set} setColors={changeColors} isEditing={isEditing}></ColorPicker>
+            <div style={colorOrderStyles}>
+                <label style={colorOrderLabelStyles} for="orderedColor">Keep Color Order: </label>
+                <input style={inputStyles} onChange={changeColorOrder} type="checkbox" id="orderedColor" name="orderedColor" disabled={!isEditing} defaultChecked={procedure.color_ordered} />
+            </div>
 
-            <p style={{marginLeft: '10px'}}>Brightness (0-1): </p>
-            {isEditing && <input style={brightnessStyles} type='text' placeholder='Brightness Min' defaultValue={procedure.brightness[0]} onChange={changeBrightnessMin}/>}
-            {!isEditing && <p style={brightnessStyles}>{procedure.brightness[0]}</p>}
-            {isEditing && <input style={brightnessStyles} type='text' placeholder='Brightness Max' defaultValue={procedure.brightness[1]} onChange={changeBrightnessMax}/>}
-            {!isEditing && <p style={brightnessStyles}>{procedure.brightness[1]}</p>}
-            
+            <div style={sectionStyles}>
+                <p style={{margin: '0 0 0 10px'}}>Brightness: </p>
+                <div style={{display: 'flex'}}>
+                    {isEditing && <input style={rangeStyles} type='text' placeholder='Brightness Min' defaultValue={procedure.brightness[0]} onChange={changeBrightnessMin}/>}
+                    {!isEditing && <p style={rangeStyles}>{procedure.brightness[0]}</p>}
+                    {isEditing && <input style={rangeStyles} type='text' placeholder='Brightness Max' defaultValue={procedure.brightness[1]} onChange={changeBrightnessMax}/>}
+                    {!isEditing && <p style={rangeStyles}>{procedure.brightness[1]}</p>}
+                </div>
+            </div>
+            <div style={sectionStyles}>
+                <p style={{margin: '0 0 0 10px'}}>Blink Time: </p>
+                <div style={{display: 'flex'}}>
+                    {isEditing && <input style={rangeStyles} type='text' placeholder='Blink Time Min' defaultValue={procedure.blink_time[0]} onChange={changeBlinkTimeMin}/>}
+                    {!isEditing && <p style={rangeStyles}>{procedure.blink_time[0]}</p>}
+                    {isEditing && <input style={rangeStyles} type='text' placeholder='BLink Time Max' defaultValue={procedure.blink_time[1]} onChange={changeBlinkTimeMax}/>}
+                    {!isEditing && <p style={rangeStyles}>{procedure.blink_time[1]}</p>}
+                </div>
+            </div>
+            <div>
+            {isEditing &&  <select id='direction' style={inputStyles} onChange={changeDirection} defaultValue='forward'>
+                <option value='forward'>Forward</option>
+                <option value='backward'>Backward</option>
+                <option value='bounce'>Bounce</option>
+            </select>}
+            {!isEditing && <p style={directionStyles}>{procedure.direction}</p>}
+            </div>
+            <div style={colorOrderStyles}>
+                <label style={fadeLabelStyles} for="fade">Fade: </label>
+                <input style={inputStyles} onChange={changeFade} type="checkbox" id="fade" name="fade" disabled={!isEditing} defaultChecked={procedure.fade} />
+            </div>
         </div>
     )
 }

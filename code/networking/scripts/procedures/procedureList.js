@@ -28,12 +28,14 @@ function ProcedureList({procedures, setProcedureList}) {
     const createProcedureRow = () => {
         const newRow = {
             'id': Math.random().toString(36).substring(2, 15),
-            'color_set': ['white'],
+            'color_set': ['#ffffff'],
+            'color_ordered': true,
             'brightness': [0,1],
-            'blink_time': [],
+            'blink_time': [0.5,0.5],
             'name': 'twinkle',
-            'direction': '',
+            'direction': 'forward',
             'run_time': '10',
+            'fade': false,
         }
         const newProcedures = procedures.concat(newRow)
         setProcedureList(newProcedures)

@@ -23,7 +23,7 @@ const editingColorStyles = {
 }
 const colorContainerStyles = {
   display: 'flex',
-  flexFlow: 'row wrap'
+  flexFlow: 'row nowrap'
 }
 const addColorStyles = {
   marginTop: '7px'
