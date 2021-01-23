@@ -1,12 +1,3 @@
-// // Create a list of values from the children of an element
-// function getChildrenValues(el) {
-//     const values = [];
-//     Array.from(el.children).forEach(child => {
-//         if (child.value) values.push(child.value);
-//     });
-//     return values;
-// }
-
 // // Get the procedure that will be sent to the christmas tree lights
 // function getProcedure(row) {
 //     const [ runTime, name, direction, colors, brightness, blinkTime] = Array.from(row.children);

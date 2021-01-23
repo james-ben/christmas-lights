@@ -3,84 +3,113 @@ from random import choice
 from itertools import cycle
 
 from light_utils import colors, twinkle
+from procedures.procedure import Procedure
 
 
-class StripeLights:
+class StripeLights(Procedure):
 	def __init__(self):
-		self.timerInterrupt = False
-		self.color_set = None
-		self.color_ordered = None
-		self.brightness = None
-		self.blink_time = None
-		self.direction = None
-		self.run_time = None
-		self.num_runs = None
-		self.strand = None
-		self.colorCycle = None
+		super().__init__()
+		self.forwardList = None
+		self.backwardList = None
+		self.bounceList = None
+		self.num_pixels = 0
 
-	def parseParams(self, params):
-		"""Read all the data from the input dictionary."""
-		self.color_set = colors.parseColorSet(params["color_set"])
-		self.color_ordered = params["color_ordered"]
-		self.brightness = params["brightness"]
-		self.blink_time = params["blink_time"]
-		self.direction = params["direction"]
-		self.colorCycle = cycle(self.color_set)
+	# def parseParams(self, params):
+	# 	"""Read all the data from the input dictionary."""
 
-		if "run_time" in params:
-			self.run_time = params["run_time"]
-			self.num_runs = None
-		else:
-			self.run_time = None
-			self.num_runs = params["num_runs"]
+	def initStrand(self, strand):
+		# optionally wipe
+		if not self.fade:
+			strand.setAllColor(colors.Off)
+			strand.showPixels()
 
-	def nextColor(self):
-		if self.color_ordered:
-			nextColor = next(self.colorCycle)
-		else:
-			nextColor = choice(self.color_set)
-		# get intensity
-		return colors.colorBrightness(nextColor, self.brightness)
+		# set up lists
+		if self.forwardList is None:
+			# only need to do it once
+			self.num_pixels = strand.num_pixels
+			self.forwardList = [i for i in range(strand.num_pixels)]
+			self.backwardList = list(reversed(self.forwardList))
+			self.bounceList = self.forwardList[:-1] + self.backwardList[:-1]
 
-	def run(self, strand, params, stopFlag):
-		# initialization
-		self.strand = strand
-		self.parseParams(params)
+	# def stripeUp(self, color):
+	# 	for i in range(self.strand.num_pixels):
+	# 		self.strand.setPixelColor(i, color)
+	# 		self.strand.showPixels()
+	# 		time.sleep(twinkle.getTime(self.blink_time))
 
-		# run
-		if self.run_time is not None:
-			while not stopFlag():
-				self.iteration()
-		else:
-			for _ in range(self.num_runs):
-				self.iteration()
-				if stopFlag():
-					break
+	# def stripeDown(self, color):
+	# 	for i in range(self.strand.num_pixels-1, -1, -1):
+	# 		self.strand.setPixelColor(i, color)
+	# 		self.strand.showPixels()
+	# 		time.sleep(twinkle.getTime(self.blink_time))
 
-	def iteration(self):
+	def iteration(self, stopEvent):
+		"""A generator which will return the next commands to do.
+
+		Returns a tuple (idx, color, time, show)
+		where idx is the index of a pixel (could by "rand"),
+		color is a RGB tuple, already scaled by brightness
+		time is how long to sleep before next update
+		and show is boolean whether or not to flush updates to strand
+		"""
+
 		# direction
 		if self.direction == "forward":
-			# up
-			self.stripeUp(self.nextColor())
+			pixelIter = cycle(self.forwardList)
 		elif self.direction == "backward":
-			# down
-			self.stripeDown(self.nextColor())
+			pixelIter = cycle(self.backwardList)
 		elif self.direction == "bounce":
-			# up_down
-			self.stripeUp(self.nextColor())
-			self.stripeDown(self.nextColor())
+			pixelIter = cycle(self.bounceList)
 
-	def stripeUp(self, color):
-		for i in range(self.strand.num_pixels):
-			self.strand.setPixelColor(i, color)
-			self.strand.showPixels()
-			time.sleep(twinkle.getTime(self.blink_time))
+		# colors
+		if self.color_ordered:
+			colorCycle = cycle(self.color_set)
+			colorFunc = next
+		else:
+			colorCycle = self.color_set
+			colorFunc = choice
 
-	def stripeDown(self, color):
-		for i in range(self.strand.num_pixels-1, -1, -1):
-			self.strand.setPixelColor(i, color)
-			self.strand.showPixels()
-			time.sleep(twinkle.getTime(self.blink_time))
+		iterCount = 0
+		cur_runs = 0
+		nextColor = None
+
+		while not stopEvent.is_set():
+			nextIdx = next(pixelIter)
+			nextTime = twinkle.getTime(self.blink_time)
+
+			if nextIdx == (self.num_pixels-1):
+				if (self.direction == "forward") or (self.direction == "bounce"):
+					cur_runs += 1
+					nextColor = colorFunc(colorCycle)
+					nextColor = colors.colorBrightness(nextColor, self.brightness)
+			elif nextIdx == 0:
+				if (self.direction == "backward") or (self.direction == "bounce"):
+					cur_runs += 1
+					nextColor = colorFunc(colorCycle)
+					nextColor = colors.colorBrightness(nextColor, self.brightness)
+			if nextColor is None:
+				nextColor = colorFunc(colorCycle)
+
+			# next instruction
+			yield (nextIdx, nextColor, nextTime, True)
+
+			if (self.num_runs is not None) and (cur_runs == self.num_runs):
+				stopEvent.set()
+
+
+	def run(self, grid, params, stopEvent):
+		"""Run this procedure with the given parameters until stopEvent is set.
+
+		stopEvent is a threading Event.
+		Will call parseParams(), and initStrand() if fade is not true.
+		Returns a generator to tell what light to change next.
+		"""
+		self.parseParams(params)
+		self.initStrand(grid)
+
+		# return a generator
+		return self.iteration(stopEvent)
+
 
 
 presets = [

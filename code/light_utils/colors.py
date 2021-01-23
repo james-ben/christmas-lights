@@ -27,15 +27,20 @@ def randomColor():
 	return choice(choices).value
 
 def parseColorSet(colorSet):
+	# make sure it's a list
 	if isinstance(colorSet, str):
 		colorSet = [colorSet]
 	elif not isinstance(colorSet, list):
 		print("Error, color set must be a list!")
 		raise TypeError
 
+	# now pack them into tuples
 	returnList = []
 	for c in colorSet:
-		returnList.append(colorNameMap[c.lower()])
+		if c.startswith("#"):
+			returnList.append((int(c[1:3], 16), int(c[3:5], 16), int(c[5:], 16)))
+		else:
+			returnList.append(colorNameMap[c.lower()])
 
 	return returnList
 

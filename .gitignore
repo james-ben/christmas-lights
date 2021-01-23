@@ -2,5 +2,6 @@
 venv
 *.pyc
 *.pyo
+.vscode
 node_modules/
 package-lock.json
