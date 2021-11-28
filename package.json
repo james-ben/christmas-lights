@@ -1,7 +1,7 @@
 {
   "name": "christmas-lights",
   "version": "1.0.0",
-  "description": "",
+  "description": "This project is an attempt to create a programmable Christmas tree (tree not included)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

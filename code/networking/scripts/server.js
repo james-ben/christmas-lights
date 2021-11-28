@@ -9,7 +9,8 @@ async function postProcedure(command = '', data = {}) {
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
         headers: {
-        'Content-Type': 'text/plain'        },
+        'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin': '*'        },
         redirect: 'follow', // manual, *follow, error
         referrerPolicy: 'no-referrer', // no-referrer, *client
         body: JSON.stringify(data)
@@ -27,7 +28,8 @@ async function getProcedures() {
         credentials: 'same-origin', // include, *same-origin, omit
         mode: 'no-cors',
         headers: {
-        'Content-Type': 'text/plain'
+        'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin': '*' 
         },
         redirect: 'follow', // manual, *follow, error
         referrerPolicy: 'no-referrer', // no-referrer, *client
