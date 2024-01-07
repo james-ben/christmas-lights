@@ -12,6 +12,8 @@ from procedures import (twinkler, strobe,
 
 pi_url = "http://192.168.0.102:5000/run"
 local_url = "http://192.168.0.111:5000/run"
+local_save_url = "http://172.25.177.72:5000/save/"
+local_retrieve_url = "http://172.25.177.72:5000/retrieve/"
 
 def createRequest(url, data):
 	req = request.Request(url)
@@ -32,6 +34,12 @@ def makePiRequest(data):
 
 def makeLocalRequest(data):
 	req, jsonData = createRequest(local_url, data)
+	resp = sendRequest(req, jsonData)
+	return resp
+
+def makeLocalSaveRequest(name, data):
+	save_url = local_save_url + name
+	req, jsonData = createRequest(save_url, data)
 	resp = sendRequest(req, jsonData)
 	return resp
 
@@ -179,14 +187,38 @@ def blinkTest():
 	makePiRequest(aggregateRequest)
 	time.sleep(sleepTime)
 
+def databaseTest():
+	print("\n --- Database test --- ")
+	aggregateRequest = []
+
+	# twinkle
+	twinkleData0 = dict(twinkler.presets[0]["data"])
+	aggregateRequest.append(twinkleData0)
+
+	makeLocalSaveRequest('_test_1', aggregateRequest)
+	time.sleep(0.1)
+
+	# reset for next one
+	aggregateRequest = []
+
+	# two things this time
+	twinkleData3 = dict(twinkleData0)
+	twinkleData3["color_set"] = ["red", "green"]
+	aggregateRequest.append(twinkleData3)
+	colData0 = dict(columns.presets[0]["data"])
+	aggregateRequest.append(colData0)
+
+	makeLocalSaveRequest('_test_2', aggregateRequest)
+	time.sleep(0.1)
 
 def main():
 	# test a variety of things
-	twinkleTest()
-	stripeTest()
-	strobeTest()
-	columnTest()
-	blinkTest()
+	# twinkleTest()
+	# stripeTest()
+	# strobeTest()
+	# columnTest()
+	# blinkTest()
+	databaseTest()
 
 
 if __name__ == '__main__':

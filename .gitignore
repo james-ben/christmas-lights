@@ -5,3 +5,6 @@ venv
 .vscode
 node_modules/
 package-lock.json
+*.db
+__pycache__
+*.log

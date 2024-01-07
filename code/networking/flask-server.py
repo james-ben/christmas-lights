@@ -3,6 +3,7 @@ import sys
 import json
 import time
 import threading
+import pathlib
 from itertools import cycle
 from datetime import datetime
 from flask import Flask, request, render_template, send_from_directory
@@ -13,12 +14,17 @@ from procedures import (twinkler, stripes,
                         blink)
 from networking import input_parser
 from light_utils import colors
+from database import database_utils
 
 # import the right kind based on the system
 if "linux" in sys.platform:
-	if os.getlogin() == "pi":
-		from light_utils import grid
-	else:
+	try:
+		if os.getlogin() == "pi":
+			from light_utils import grid
+		else:
+			from light_utils import fake_grid as grid
+	except OSError:
+		# doesn't work on Windows?
 		from light_utils import fake_grid as grid
 else:
 	from light_utils import fake_grid as grid
@@ -64,6 +70,15 @@ class TreeServer(object):
 		self.completed = False
 		self.backgroundThread = threading.Thread(target=self.runBackground)
 		self.backgroundThread.start()
+
+		# set up the database which will save/retrieve the routines
+		self.rtdb = database_utils.RoutineDatabase()
+		self.rtdb.connect()
+		self.rtdb.create_schema()
+
+		# logging
+		self.logfile_path = pathlib.Path(__file__).resolve().parent / 'flask-server.log'
+		self.logger = open(self.logfile_path, 'w')
 
 	def __del__(self):
 		"""Stop all threads and destruct the strand/grid."""
@@ -164,6 +179,12 @@ class TreeServer(object):
 		# pre-empt the procedure
 		self.procFlag.set()
 
+	def saveRoutine(self, name, params):
+		self.rtdb.add_routine(name, params)
+
+	def getRoutine(self, name, params):
+		return self.rtdb.get_routine(name)
+
 
 # home page
 @app.route('/')
@@ -210,8 +231,42 @@ def runProcedure():
 	except Exception:
 		pass
 	finally:
-		return "Failure!"
+		return "Failure! run"
 
+# Make a method to save a routine by name
+@app.route('/save')
+def saveProcedure():
+	name = "temp1"
+	print("Save routine named {}".format(name), file=ts.logger)
+	try:
+		if request.method == 'POST':
+			data = str(request.get_data(), encoding='utf-8')
+			print(data, file=ts.logger)
+			# format as json
+			info = input_parser.sanitizePacket(data)
+
+			if isinstance(info, list):
+				ts.saveRoutine(name, info)
+				return "accepted"
+			else:
+				print(data)
+				return "Error, invalid request"
+	except Exception:
+		pass
+	finally:
+		return "Failure! save"
+
+# Make a method to retrieve a routine by name
+@app.route('/retrieve/<name>')
+def retrieveProcedure(name):
+	try:
+		procedureData = ts.getRoutine(name)
+		# Returns a string of serialized json data, empty if not present in DB
+		return procedureData
+	except Exception:
+		pass
+	finally:
+		return "Failure! retrieve"
 
 # names of options for getting
 get_options = [
